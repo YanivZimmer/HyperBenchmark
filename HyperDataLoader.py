@@ -38,7 +38,11 @@ class HyperDataLoader:
               f"Number of Bands: {data.shape[-1]}")
 
         return data, gt
-
+    def generate_vectors(self,dataset):
+        data, lables = self.load_dataset_supervised(dataset)
+        X=data.reshape(data.shape[0]*data.shape[1], -1)
+        Y=lables.reshape(lables.shape[0]*lables.shape[1], -1)
+        return X,Y
     def load_dataset_unsupervised(self, Name: str,
                                   patch_size: int = -1) -> np.ndarray:
         """
@@ -49,8 +53,11 @@ class HyperDataLoader:
         """
         raise NotImplementedError
 
-
-hdl = HyperDataLoader()
-data, lables = hdl.load_dataset_supervised("PaviaU")
-print(data)
-print(lables)
+def test():
+    hdl = HyperDataLoader()
+    data, lables = hdl.load_dataset_supervised("PaviaU")
+    print(data[0].shape)
+    print(data[1:3][1:3].shape)
+    print(lables[1:3][1:3].shape)
+    #print(data[1:3][1:3])
+    print(lables.ravel())
