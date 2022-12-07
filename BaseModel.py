@@ -3,6 +3,8 @@ from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten, Dense,Dropout,BatchNormalization
 from HyperDataLoader import HyperDataLoader
+from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
 
 INPUT_SHAPE=103
 NUM_CLASSES=10
@@ -16,21 +18,22 @@ model = Sequential([
     Dense(32, activation='relu'),
     Dropout(0.3),
     BatchNormalization(),
-    Dense(NUM_CLASSES,activation='sigmoid'),
+    Dense(NUM_CLASSES,activation='softmax'),
 ])
 
-print("Hellowwww")
 LEARNING_RATE=0.00003
 opt = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 model.compile(loss='categorical_crossentropy', optimizer=opt,metrics=['accuracy',])
-print("Hello")
-loader=HyperDataLoader()
-X,Y=loader.generate_vectors("PaviaU")
-print(X.shape)
-print(X[0].shape)
-print(Y.shape)
-print(Y[0].shape)
-print(model.predict(X[0]).shape,Y[0].shape)
-history = model.fit(X, Y, epochs=2, batch_size=4,verbose=1)
+print(model.summary())
 
+loader=HyperDataLoader()
+X,y=loader.generate_vectors("PaviaU")
+y=to_categorical(y, num_classes=10)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+
+
+history = model.fit(X_train, y_train, epochs=100, batch_size=256, verbose=1)
 print(history)
+results = model.evaluate(X_test, y_test, batch_size=256)
+print("Accuracy over test set is {0}".format(results))
+
