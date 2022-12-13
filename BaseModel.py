@@ -46,7 +46,7 @@ print("pred_zero",pred_zero,"argmax",np.argmax(pred_zero))
 print("pred_i10",pred_i10,"argmax",np.argmax(pred_i10))
 print("diff_pred",diff_pred,"argmax",np.argmax(diff_pred))
 
-history = model.fit(X_train, y_train, epochs=4, batch_size=256, verbose=1)
+history = model.fit(X_train, y_train, epochs=40, batch_size=256, verbose=1)
 #print(history)
 results = model.evaluate(X_test, y_test, batch_size=256)
 print("Accuracy over test set is {0}".format(results))
@@ -72,4 +72,21 @@ def build_class_heatmap(model:keras.Model,data,lables,features_num,class_label):
                 arr[i] += (diff[i]-diff[np.argmax(diff)])
     return arr
 
+def build_all_heatmaps(model:keras.Model,data,lables,features_num,labels_num):
+    arr = np.zeros((labels_num,features_num))
+    for x, y_categorical in zip(data, lables):
+        y = np.argmax(y_categorical)
+        for i in range(features_num):
+            v_i = np.zeros((1,features_num))
+            pred_zero = model.predict(v_i)
+            v_i[0][i] = x[i]
+            pred_i = model.predict(v_i)
+            diff = pred_i - pred_zero
+            arr[y][i] += (diff[0][y] - diff[0][np.argmax(diff)])
+    return arr
+
+
+arr=build_all_heatmaps(model,X_test,y_test,len(X_test[0]),NUM_CLASSES)
+print(arr)
+print("Done")
 
