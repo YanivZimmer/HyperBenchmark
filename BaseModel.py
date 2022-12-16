@@ -106,7 +106,7 @@ def build_all_heatmaps(model: keras.Model, data, lables, features_num, labels_nu
     return arr
 
 
-def find_feature_class_contribution(
+def feature_class_contribution(
     model: keras.Model, feature_idx, features_num, label_idx
 ):
     v_i = np.zeros((1, features_num))
@@ -118,19 +118,27 @@ def find_feature_class_contribution(
     return contribution
 
 
-def feature_contributions(model: keras.Model, features_num, labels_num):
-    arr = np.zeros((labels_num, features_num))
-    for label_idx in range(labels_num):
-        for feature_idx in range(features_num):
-            arr[label_idx, feature_idx] = find_feature_class_contribution(
-                model, feature_idx, features_num, label_idx
-            )
+def feature_multiple_class_contribution(model: keras.Model, feature_idx, features_num):
+    v_i = np.zeros((1, features_num))
+    pred_zero = model.predict(v_i)
+    v_i[0][feature_idx] = 1
+    pred_i = model.predict(v_i)
+    diff = pred_i - pred_zero
+    return diff
+
+
+def feature_contributions(model: keras.Model, features_num, labels_num, normalize):
+    arr = np.zeros((features_num, labels_num))
+    for feature_idx in range(features_num):
+        arr[feature_idx] = feature_multiple_class_contribution(
+            model, feature_idx, features_num
+        )
+    if normalize:
+        for i in range(len(arr)):
+            arr[i] = arr[i]/np.linalg.norm(arr[i])
     return arr
 
-
-_, X_test, _, y_test = train_test_split(X_test, y_test, test_size=0.5, shuffle=True)
-# arr = build_all_heatmaps(model, X_test, y_test, len(X_test[0]), NUM_CLASSES)
-fc = feature_contributions(model, len(X_test[0]), NUM_CLASSES)
-
+fc = feature_contributions(model, len(X_test[0]), NUM_CLASSES,True)
 print("fc", fc)
+np.save('data_norm.npy', fc) # save
 print("Done")
