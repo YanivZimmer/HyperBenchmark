@@ -9,71 +9,43 @@ from sklearn.model_selection import train_test_split
 
 INPUT_SHAPE = 103
 NUM_CLASSES = 10
-"""model = Sequential(
-    [
-        Dense(2*INPUT_SHAPE, activation="relu", input_shape=(INPUT_SHAPE,)),
-        Dropout(0.3),
-        BatchNormalization(),
-        Dense(int(0.5*INPUT_SHAPE), activation="relu"),
-        Dropout(0.3),
-        BatchNormalization(),
-        Dense(int(0.1*INPUT_SHAPE), activation="relu"),
-        Dropout(0.3),
-        BatchNormalization(),
-        Dense(NUM_CLASSES, activation="softmax"),
-    ]
-)"""
-model = keras.Sequential(
-    [
-        Dense(2 * INPUT_SHAPE, activation="relu", input_shape=(INPUT_SHAPE,)),
-        Dropout(0.1),
-        BatchNormalization(),
-        Dense(int(0.5 * INPUT_SHAPE), activation="relu"),
-        Dropout(0.1),
-        BatchNormalization(),
-        Dense(NUM_CLASSES, activation="sigmoid"),
-    ]
-)
-LEARNING_RATE = 0.00002
-opt = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
-model.compile(
-    loss="categorical_crossentropy",
-    optimizer=opt,
-    metrics=[
-        "accuracy",
-    ],
-)
-print(model.summary())
 
-def train_base_model():
+
+
+def train_base_model(load_existing):
     loader = HyperDataLoader()
     X, y = loader.generate_vectors("PaviaU")
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    if load_existing:
+        model = keras.models.load_model("model_all_band")
+        return model, X_test, y_test
 
-    dummy_x = X_train[0].reshape(1, 103)
-    #print("Xtrain pred:", model.predict(dummy_x))
-    v_i = np.zeros((1, 103))
-    v_zeros = np.zeros((1, 103))
-    pred_zero = model.predict(v_zeros)
-    v_i[0][10] = 1
-    pred_i10 = model.predict(v_i)
-    diff_pred = pred_i10 - pred_zero
-    #print("pred_zero", pred_zero, "argmax", np.argmax(pred_zero))
-    #print("pred_i10", pred_i10, "argmax", np.argmax(pred_i10))
-    #print("diff_pred", diff_pred, "argmax", np.argmax(diff_pred))
-
+    model = keras.Sequential(
+        [
+            Dense(2 * INPUT_SHAPE, activation="relu", input_shape=(INPUT_SHAPE,)),
+            Dropout(0.1),
+            BatchNormalization(),
+            Dense(int(0.5 * INPUT_SHAPE), activation="relu"),
+            Dropout(0.1),
+            BatchNormalization(),
+            Dense(NUM_CLASSES, activation="softmax"),
+        ]
+    )
+    LEARNING_RATE = 0.00002
+    opt = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
+    model.compile(
+        loss="categorical_crossentropy",
+        optimizer=opt,
+        metrics=[
+            "accuracy",
+        ],
+    )
     history = model.fit(X_train, y_train, epochs=50, batch_size=256, verbose=1)
-    # print(history)
     results = model.evaluate(X_test, y_test, batch_size=256)
     print("Accuracy over test set is {0}".format(results))
-
-    pred_zero = model.predict(v_zeros)
-    pred_i10 = model.predict(v_i)
-    diff_pred = pred_i10 - pred_zero
-    #print("pred_zero", pred_zero, "argmax", np.argmax(pred_zero))
-    #print("pred_i10", pred_i10, "argmax", np.argmax(pred_i10))
-    #print("diff_pred", diff_pred, "argmax", np.argmax(diff_pred))
+    model.save("model_all_band")
+    return model,X_test,y_test
 
 def train_selected_bands_model(bands_mask):
     input_shape=len(bands_mask)
@@ -85,7 +57,7 @@ def train_selected_bands_model(bands_mask):
             Dense(int(0.5 * input_shape), activation="relu"),
             Dropout(0.1),
             BatchNormalization(),
-            Dense(NUM_CLASSES, activation="sigmoid"),
+            Dense(NUM_CLASSES, activation="softmax"),
         ]
     )
     LEARNING_RATE = 0.00002
@@ -131,9 +103,11 @@ def build_class_heatmap(model: keras.Model, data, lables, features_num, class_la
 
 def build_all_heatmaps(model: keras.Model, data, lables, features_num, labels_num):
     arr = np.zeros((labels_num, features_num))
+    k=0
     for x, y_categorical in zip(data, lables):
         y = np.argmax(y_categorical)
         for i in range(features_num):
+            k+=1
             v_i = np.zeros((1, features_num))
             pred_zero = model.predict(v_i)
             v_i[0][i] = x[i]
@@ -142,6 +116,22 @@ def build_all_heatmaps(model: keras.Model, data, lables, features_num, labels_nu
             arr[y][i] += diff[0][y] - diff[0][np.argmax(diff)]
     return arr
 
+def build_all_heatmaps_fast(model: keras.Model, data, lables, features_num, labels_num):
+    arr = np.zeros((labels_num, features_num))
+    pred_zero = model.predict(np.zeros((1, features_num)))
+    for x, y_categorical in zip(data, lables):
+        y = np.argmax(y_categorical)
+        mat = np.zeros((features_num, features_num))
+        np.fill_diagonal(mat, x)
+        pred_all_features = model.predict(mat)
+        #b0 = pred_all_features = model.predict(mat[0])
+        #b1 = pred_all_features = model.predict(mat[1])
+        pred_all_features -= pred_zero
+        arr[y] += (pred_all_features[:, y]/sum(pred_all_features[:, y]))
+        #argm = np.argmax(pred_all_features,axis=1)
+        #t=tuple(argm)
+        #arr[y] -= pred_all_features[:,t]
+    return arr
 
 def feature_class_contribution(
     model: keras.Model, feature_idx, features_num, label_idx
@@ -176,7 +166,7 @@ def feature_contributions(model: keras.Model, features_num, labels_num, normaliz
     return arr
 
 
-if __name__=="__main__":
+def fast():
     #anomally
     print("Anomally")
     #train_selected_bands_model((5, 6, 9, 38, 39, 48, 50, 53, 66, 84, 85))
@@ -202,3 +192,23 @@ if __name__=="__main__":
     #print("fc", fc)
     #np.save('data_norm.npy', fc) # save
     print("Done")
+
+def real_heatmaps():
+    model, X_test, y_test = train_base_model(True)
+    _, X_test, _, y_test = train_test_split(X_test, y_test, test_size=0.01, shuffle=True)
+    arr = build_all_heatmaps_fast(model, X_test, y_test, len(X_test[0]), NUM_CLASSES)
+    np.save('datareal.npy', arr) # save
+
+
+def compare():
+    print("Anomally")
+    train_selected_bands_model((2, 4, 7, 10, 19, 38, 41, 52, 74, 87))
+    print("All")
+    train_base_model(True)
+    random_selected_bands=tuple(np.random.randint(low=1,high=103,size=10))
+    print("Random",random_selected_bands)
+    train_selected_bands_model(random_selected_bands)
+
+
+if __name__ == "__main__":
+    compare()
