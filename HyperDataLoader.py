@@ -16,6 +16,9 @@ class HyperDataLoader:
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
                 "PaviaU.mat", "PaviaU_gt.mat", "paviaU", "paviaU_gt"
+            ),
+            "HSI-drive": DatasetParams(
+                "nf3112_104_MF_TC_N_fl32.mat", "nf3112_1041672166721.mat", "cube_fl32", "M"
             )
         }
 
@@ -27,9 +30,12 @@ class HyperDataLoader:
         :param patch_size: for segmantation tasks
         :return: data array,ground truth lables array
         """
+        data1 = loadmat(self.datasets_params[dataset].path)
+        pavia= loadmat('PaviaU.mat')
         data = loadmat(self.datasets_params[dataset].path)[
             self.datasets_params[dataset].key
         ]
+        gt1 = loadmat(self.datasets_params[dataset].gt_path)
         gt = loadmat(self.datasets_params[dataset].gt_path)[
             self.datasets_params[dataset].gt_key
         ]
@@ -56,9 +62,13 @@ class HyperDataLoader:
 
 def test():
     hdl = HyperDataLoader()
-    data, lables = hdl.load_dataset_supervised("PaviaU")
+    data, lables = hdl.load_dataset_supervised("HSI-drive")
     print(data[0].shape)
     print(data[1:3][1:3].shape)
     print(lables[1:3][1:3].shape)
     # print(data[1:3][1:3])
+    #HSI-drive
+    print(data[:,0,0])
+    print(lables[0][0])
     print(lables.ravel())
+test()
