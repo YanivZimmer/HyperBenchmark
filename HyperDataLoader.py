@@ -21,11 +21,11 @@ class HyperDataLoader:
     def __init__(self):
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
-                ["PaviaU.mat", "PaviaU_gt.mat", "paviaU", "paviaU_gt"]
+                "PaviaU.mat", "PaviaU_gt.mat", "paviaU", "paviaU_gt"
             ),
             "HSI-drive": DatasetParams(
-                "nf3112_104_MF_TC_N_fl32.mat",
-                "nf3112_1041672166721.mat",
+                "./datasets/HSI-drive/cubes_float32",
+                "./datasets/HSI-drive/labels",
                 "cube_fl32",
                 "M",
             ),
@@ -38,11 +38,12 @@ class HyperDataLoader:
 
     def load_dataset_supervised(
         self, dataset_name: str, patch_size: int = 1
-    ) -> List[Tuple[np.ndarray, np.ndarray]]:
+    ) -> List[Labeled_Data]:
         labeled_data_list = []
+        print(os.getcwd())
         datafiles = os.listdir(self.datasets_params[dataset_name].data_folder)
         for lablefile in os.listdir(self.datasets_params[dataset_name].lables_folder):
-            base_name = os.path.basename(lablefile)
+            base_name = os.path.splitext(os.path.basename(lablefile))[0]
             data_files = list(filter(lambda a: a.startswith(base_name), datafiles))
             if len(data_files) == 0:
                 raise AttributeError(f"no data for {base_name}")
@@ -76,7 +77,7 @@ class HyperDataLoader:
         data = self.file_to_mat(datafile, datakey)
         gt = self.file_to_mat(lablefile, labelkey)
         # TODO- patch
-        print(f"Data Shape: {data.shape[:-1]}\n" f"Number of Bands: {data.shape[-1]}")
+        print(f"Data Shape: {data.shape}")#[:-1]}\n" f"Number of Bands: {data.shape[-1]}")
         return data, gt
 
     def generate_vectors(self, dataset):
@@ -97,12 +98,14 @@ class HyperDataLoader:
 
 def test():
     hdl = HyperDataLoader()
-    data, lables = hdl.load_dataset_supervised("HSI-drive")
-    print(data[0].shape)
-    print(data[1:3][1:3].shape)
-    print(lables[1:3][1:3].shape)
+    images = hdl.load_dataset_supervised("HSI-drive")
+    #print(data[0].shape)
+    #print(data[1:3][1:3].shape)
+    #print(lables[1:3][1:3].shape)
     # print(data[1:3][1:3])
     # HSI-drive
+    data=images[0].image
+    lables=images[0].lables
     print(data[:, 0, 0])
     print(lables[0][0])
     print(lables.ravel())
