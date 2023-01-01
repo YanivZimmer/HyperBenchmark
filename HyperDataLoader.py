@@ -119,11 +119,14 @@ class HyperDataLoader:
         )  # [:-1]}\n" f"Number of Bands: {data.shape[-1]}")
         return Labeled_Data(data, gt)
 
-    def generate_vectors(self, dataset):
-        data, lables = self.load_dataset_supervised(dataset)
-        X = data.reshape(data.shape[0] * data.shape[1], -1)
-        Y = lables.reshape(lables.shape[0] * lables.shape[1], -1)
-        return X, Y
+    def generate_vectors(self, dataset:str)->List[Labeled_Data]:
+        vectors_list=[]
+        labled_data = self.load_dataset_supervised(dataset)
+        for item in labled_data:
+            X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
+            Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
+            vectors_list.append(Labeled_Data(X,Y))
+        return vectors_list
 
     def load_dataset_unsupervised(self, Name: str, patch_size: int = -1) -> np.ndarray:
         """
@@ -155,4 +158,4 @@ def test():
     print(lables.ravel())
 
 
-test()
+#test()

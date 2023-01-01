@@ -13,7 +13,8 @@ NUM_CLASSES = 10
 
 def train_base_model(load_existing):
     loader = HyperDataLoader()
-    X, y = loader.generate_vectors("PaviaU")
+    labeled_data = loader.generate_vectors("PaviaU")
+    X, y = labeled_data[0].image, labeled_data[0].lables
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     if load_existing:
@@ -71,7 +72,8 @@ def train_selected_bands_model(bands_mask):
     )
     # print(model.summary())
     loader = HyperDataLoader()
-    X, y = loader.generate_vectors("PaviaU")
+    labeled_data = loader.generate_vectors("PaviaU")
+    X, y = labeled_data[0].image, labeled_data[0].lables
     # print(X.shape)
     X = X[:, bands_mask]
     # print(X.shape)
