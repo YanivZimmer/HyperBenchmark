@@ -1,1 +1,0 @@
-def map_entropy()
