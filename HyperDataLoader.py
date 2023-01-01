@@ -17,12 +17,14 @@ class DatasetParams:
         data_key: str,
         lables_key: str,
         single_file=False,
+        tranpose=False,
     ):
         self.data_path = data_path
         self.lables_path = lables_path
         self.data_key = data_key
         self.gt_key = lables_key
         self.single_file = single_file
+        self.transpose = tranpose
 
 
 class HyperDataLoader:
@@ -34,6 +36,7 @@ class HyperDataLoader:
                 "paviaU",
                 "paviaU_gt",
                 True,
+                False,
             ),
             "HSI-drive": DatasetParams(
                 "./datasets/HSI-drive/cubes_float32",
@@ -41,6 +44,7 @@ class HyperDataLoader:
                 "cube_fl32",
                 "M",
                 False,
+                True,
             ),
         }
 
@@ -60,6 +64,7 @@ class HyperDataLoader:
             dataset_param.lables_path,
             dataset_param.data_key,
             dataset_param.gt_key,
+            dataset_param.transpose,
         )
 
     def load_dataset_supervised(
@@ -84,6 +89,7 @@ class HyperDataLoader:
                 ),
                 self.datasets_params[dataset_name].data_key,
                 self.datasets_params[dataset_name].gt_key,
+                self.datasets_params[dataset_name].transpose,
             )
             labeled_data_list.append(labled_img)
         return labeled_data_list
@@ -94,6 +100,7 @@ class HyperDataLoader:
         lablefile: str,
         datakey: Union[str, None],
         labelkey: Union[str, None],
+        transpose: bool,
         patch_size: int = 1,
     ) -> Labeled_Data:
         """
@@ -104,6 +111,9 @@ class HyperDataLoader:
         data = self.file_to_mat(datafile, datakey)
         gt = self.file_to_mat(lablefile, labelkey)
         # TODO- patch
+        if transpose:
+            data = data.T
+            gt = gt.T
         print(
             f"Data Shape: {data.shape}"
         )  # [:-1]}\n" f"Number of Bands: {data.shape[-1]}")
