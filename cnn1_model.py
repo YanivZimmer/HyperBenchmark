@@ -35,8 +35,8 @@ def pavia_cnn1():
 def filter_unlablled(X,y):
     #idx = np.argsort(y)
     idx = np.where(y != 0)
-    y = y[idx]
-    X = X[idx]
+    y = y[idx[0]]
+    X = X[idx[0],:]
     #Make lables 0-9
     y -= 1
     return X,y
@@ -79,14 +79,16 @@ def cnn_model(input_size,num_of_class):
 
 def hsi_drive_cnn1():
     X_train, X_test, y_train, y_test = combine_hsi_drive()
-    model = cnn_model(INPUT_SHAPE_PAVIA, INPUT_SHAPE_PAVIA)
+    model = cnn_model(INPUT_SHAPE_DRIVE, NUM_CLASSES_DRIVE)
+    print("bef",X_train.shape,X_test.shape)
     X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+    print("aft", X_train.shape, X_test.shape)
     history = model.fit(X_train, y_train, epochs=10, batch_size=256, verbose=1)
     results = model.evaluate(X_test, y_test, batch_size=256)
     print("Accuracy over test set is {0}".format(results))
     return model, X_test, y_test
 
 
-pavia_cnn1()
+#pavia_cnn1()
 hsi_drive_cnn1()
