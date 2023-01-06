@@ -1,3 +1,4 @@
+import math
 import os
 
 import numpy as np
@@ -5,7 +6,7 @@ from typing import Dict, Tuple, List, Union
 from scipy.io import loadmat
 from HyperData.png_to_mat import png_to_array
 from collections import namedtuple
-
+from sklearn.feature_extraction.image import extract_patches_2d
 Labeled_Data = namedtuple("Labeled_Data", ["image", "lables"])
 
 
@@ -52,6 +53,15 @@ class HyperDataLoader:
         if filename.endswith("png"):
             return png_to_array(filename)
         return loadmat(filename)[key]
+    def patch_to_pad(self,patch_size):
+        return (math.floor((patch_size - 1) / 2), math.ceil((patch_size - 1) / 2))
+
+    def create_patches(self,data,patch_shape=(3, 3)):
+        padding_first = self.patch_to_pad(patch_shape[0])
+        padding_second = self.patch_to_pad(patch_shape[1])
+        data = np.pad(data,(padding_first,padding_second,(0,0)), mode='constant', constant_values=0)
+        data = extract_patches_2d(data, patch_shape)
+        return data
 
     def load_singlefile_supervised(self, dataset_param: DatasetParams) -> Labeled_Data:
         """
