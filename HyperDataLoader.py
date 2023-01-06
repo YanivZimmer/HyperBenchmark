@@ -53,10 +53,18 @@ class HyperDataLoader:
         if filename.endswith("png"):
             return png_to_array(filename)
         return loadmat(filename)[key]
-    def patch_to_pad(self,patch_size):
+    def patch_to_pad(self,patch_size:int):
         return (math.floor((patch_size - 1) / 2), math.ceil((patch_size - 1) / 2))
 
-    def create_patches(self,data,patch_shape=(3, 3)):
+    def patches_factory(self,data:np.ndarray,patch_shape:Tuple[int,int]):
+        '''
+        Generate patches in patch shape surrounding each pixel. for pixels too close to image borders using 0 padding.
+        Note: order is preserved.
+        Shape transition: (x,y,z)->(x*y,patch_shape[0],patch_shape[1],z)
+        :param data:
+        :param patch_shape:
+        :return:
+        '''
         padding_first = self.patch_to_pad(patch_shape[0])
         padding_second = self.patch_to_pad(patch_shape[1])
         data = np.pad(data,(padding_first,padding_second,(0,0)), mode='constant', constant_values=0)
@@ -78,7 +86,7 @@ class HyperDataLoader:
         )
 
     def load_dataset_supervised(
-        self, dataset_name: str, patch_size: int = 1
+        self, dataset_name: str
     ) -> List[Labeled_Data]:
         if self.datasets_params[dataset_name].single_file:
             return [self.load_singlefile_supervised(self.datasets_params[dataset_name])]
@@ -111,16 +119,13 @@ class HyperDataLoader:
         datakey: Union[str, None],
         labelkey: Union[str, None],
         transpose: bool,
-        patch_size: int = 1,
     ) -> Labeled_Data:
         """
         :param Name:
-        :param patch_size: for segmantation tasks
-        :return: data array,ground truth lables array
+        :return: data array,ground truth labels array
         """
         data = self.file_to_mat(datafile, datakey)
         gt = self.file_to_mat(lablefile, labelkey)
-        # TODO- patch
         if transpose:
             data = data.T
             gt = gt.T
@@ -138,11 +143,10 @@ class HyperDataLoader:
             vectors_list.append(Labeled_Data(X,Y))
         return vectors_list
 
-    def load_dataset_unsupervised(self, Name: str, patch_size: int = -1) -> np.ndarray:
+    def load_dataset_unsupervised(self, Name: str) -> np.ndarray:
         """
 
         :param Name:
-        :param patch_size:
         :return:
         """
         raise NotImplementedError
