@@ -46,7 +46,7 @@ def combine_hsi_drive(test_size=0.33):
     loader = HyperDataLoader()
     labeled_data = loader.generate_vectors("HSI-drive")
     X, y = labeled_data[0].image,labeled_data[0].lables
-    for item in labeled_data[1:10]:
+    for item in labeled_data[1:]:
         X = np.concatenate((X, item.image))
         y = np.concatenate((y, item.lables))
     X,y = filter_unlablled(X, y)
