@@ -60,7 +60,7 @@ class HyperDataLoader:
         y -= 1
         return X, y
 
-    def images_to_pixels(self,dataset:str,patch_shape: Tuple[int,int], filter_unlabeled=True, limit=None):
+    def images_to_pixels(self,dataset:str,patch_shape: Tuple[int,int], filter_unlabeled=False, limit=None):
         labeled_data = self.load_dataset_supervised(dataset,patch_shape,limit=limit)
         X, y = labeled_data[0].image, labeled_data[0].lables
         y=y.reshape(y.shape[0]*y.shape[1])
@@ -160,7 +160,7 @@ class HyperDataLoader:
             gt = gt.T
         print(
             f"Data Shape: {data.shape}"
-        )  # [:-1]}\n" f"Number of Bands: {data.shape[-1]}")
+        )
         data = self.patches_factory(data,patch_shape)
         return Labeled_Data(data, gt)
 

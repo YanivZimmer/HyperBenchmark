@@ -1,10 +1,9 @@
 from HyperDataLoader import HyperDataLoader
 
 loader=HyperDataLoader()
-X,y=loader.images_to_pixels("HSI-drive",(3,3),limit=10)
+X,y=loader.images_to_pixels("HSI-drive",(3,3),True,limit=10)
 print(X.shape)
 print(y.shape)
-labled_data=loader.load_dataset_supervised("PaviaU",(5,5))
-print()
-print(labled_data[0].image.shape)
-print(labled_data[0].lables.shape)
+X1,y1=loader.images_to_pixels("PaviaU",(1,1),False)
+print(X1.shape)
+print(y1.shape)
