@@ -8,6 +8,7 @@ from HyperData.png_to_mat import png_to_array
 from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 
 Labeled_Data = namedtuple("Labeled_Data", ["image", "lables"])
 
@@ -34,16 +35,16 @@ class HyperDataLoader:
     def __init__(self):
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
-                "./datasets/PaviaU/image/PaviaU.mat",
-                "./datasets/PaviaU/labels/PaviaU_gt.mat",
+                "../datasets/PaviaU/image/PaviaU.mat",
+                "../datasets/PaviaU/labels/PaviaU_gt.mat",
                 "paviaU",
                 "paviaU_gt",
                 True,
                 False,
             ),
             "HSI-drive": DatasetParams(
-                "./datasets/HSI-drive/cubes_float32",
-                "./datasets/HSI-drive/labels",
+                "../datasets/HSI-drive/cubes_float32",
+                "../datasets/HSI-drive/labels",
                 "cube_fl32",
                 "M",
                 False,
