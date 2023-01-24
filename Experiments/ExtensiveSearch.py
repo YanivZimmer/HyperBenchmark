@@ -3,10 +3,12 @@ from typing import List, Callable, Tuple, Dict
 import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Model
-import logging
+
 from cnn1_model import cnn_model
 from HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
+import logging
+logging.basicConfig(filename='ExtensiveSearch.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 class Searcher:
     def __init__(
@@ -102,6 +104,9 @@ if __name__== '__main__':
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     searcher = Searcher(lambda x: cnn_model(x,NUM_OF_CLASSES),X_train,y_train,X_test,y_test)
     removed, best_score, average_score = searcher.search_all(list(np.arange(1, 102, 5)),min_bands=14,epochs=11)
+    logging.info("best_score:=",best_score)
+    logging.info("removed:=",removed)
+    logging.info("average_score:=",average_score)
     print(removed)
     print()
 
