@@ -4,7 +4,7 @@ import os
 import numpy as np
 from typing import Dict, Tuple, List, Union
 from scipy.io import loadmat
-from HyperData.png_to_mat import png_to_array
+from HyperDataLoader.png_to_mat import png_to_array
 from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
 from tensorflow.keras.utils import to_categorical
@@ -35,16 +35,16 @@ class HyperDataLoader:
     def __init__(self):
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
-                "../datasets/PaviaU/image/PaviaU.mat",
-                "../datasets/PaviaU/labels/PaviaU_gt.mat",
+                "/usr/bin/code/datasets/PaviaU/image/PaviaU.mat",
+                "/usr/bin/code/datasets/PaviaU/labels/PaviaU_gt.mat",
                 "paviaU",
                 "paviaU_gt",
                 True,
                 False,
             ),
             "HSI-drive": DatasetParams(
-                "../datasets/HSI-drive/cubes_float32",
-                "../datasets/HSI-drive/labels",
+                "/usr/bin/code/datasets/HSI-drive/cubes_float32",
+                "/usr/bin/code/datasets/HSI-drive/labels",
                 "cube_fl32",
                 "M",
                 False,

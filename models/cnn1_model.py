@@ -1,18 +1,12 @@
-from typing import List
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.layers import MaxPooling1D,Input
+from tensorflow.keras.layers import MaxPooling1D
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import (
     Flatten,
     Dense,
-    Dropout,
-    BatchNormalization,
     Conv1D,
-    Conv2D,
 )
-from HyperDataLoader import HyperDataLoader
+from HyperDataLoader.HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 

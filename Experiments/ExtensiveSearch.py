@@ -1,11 +1,10 @@
 import statistics
-from typing import List, Callable, Tuple, Dict
+from typing import List, Callable, Dict
 import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Model
-
-from cnn1_model import cnn_model
-from HyperDataLoader import HyperDataLoader
+from HyperDataLoader.HyperDataLoader import HyperDataLoader
+from models.cnn1_model import cnn_model
 from tensorflow.keras.utils import to_categorical
 import logging
 logging.basicConfig(filename='ExtensiveSearch.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
@@ -91,6 +90,7 @@ class Searcher:
 
 
 if __name__== '__main__':
+    logging.info("Start")
     NUM_OF_CLASSES = 10
     loader=HyperDataLoader()
     labeled_data = loader.generate_vectors("PaviaU", (1, 1))

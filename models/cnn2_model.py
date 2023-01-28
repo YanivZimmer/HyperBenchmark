@@ -1,4 +1,4 @@
-from HyperDataLoader import HyperDataLoader
+from HyperDataLoader.HyperDataLoader import HyperDataLoader
 
 loader = HyperDataLoader()
 X, y = loader.images_to_pixels("HSI-drive", (3, 3), True, limit=10)
