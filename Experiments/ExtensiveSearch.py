@@ -1,3 +1,12 @@
+import logging
+import os
+from datetime import datetime
+now=datetime.now()
+date_time = now.strftime("%m%d%Y_%H%M")
+
+logging.basicConfig(filename=f'/var/log/Hyperspectral_{date_time}.log', filemode='w' ,level=logging.DEBUG,force=True,format='%(name)s - %(levelname)s - %(message)s')
+logger=logging.getLogger()
+logger.info("")
 import statistics
 from typing import List, Callable, Dict
 import numpy as np
@@ -6,8 +15,6 @@ from tensorflow.keras.models import Model
 from HyperDataLoader.HyperDataLoader import HyperDataLoader
 from models.cnn1_model import cnn_model
 from tensorflow.keras.utils import to_categorical
-import logging
-logging.basicConfig(filename='ExtensiveSearch.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 class Searcher:
     def __init__(
@@ -30,7 +37,7 @@ class Searcher:
         masked_x_train = self.X_train[...,bands,:]
         masked_x_test = self.X_test[...,bands,:]
         from _datetime import datetime
-        print(datetime.now())
+        logging.debug(datetime.now())
         model = self.model_creator(len(bands))
 
         history = model.fit(
@@ -42,7 +49,7 @@ class Searcher:
             **kwargs
         )
         results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
-        print("Accuracy over test set is {0}".format(results))
+        logging.debug("Accuracy over test set is {0}".format(results))
         return model, results
 
     def search_without_one(self, all_bands: List[int],*args,**kwargs) -> Dict[int, float]:
@@ -51,9 +58,6 @@ class Searcher:
         :param all_bands:
         :return: Dict of missing band and model score without him
         '''
-        print("All bands",all_bands)
-        print("args",args)
-        print("kwargs",kwargs)
         missing_band_to_score = {}
         for band in all_bands:
             almost_all_bands = list(all_bands)
@@ -74,9 +78,7 @@ class Searcher:
         average_score = {}
         removed=[]
         while len(bands) > min_bands:
-            print('len=',len(bands))
             results = self.search_without_one(bands,*args,**kwargs)
-            print("here",len(bands))
             worst_band=self.find_worst(results)
             removed.append(worst_band)
             score=results[worst_band]
@@ -95,18 +97,14 @@ if __name__== '__main__':
     loader=HyperDataLoader()
     labeled_data = loader.generate_vectors("PaviaU", (1, 1))
     X, y = labeled_data[0].image, labeled_data[0].lables
-    print("bef=", len(X))
     X, y = loader.filter_unlabeled(X, y)
-    print("aft=", len(X))
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     searcher = Searcher(lambda x: cnn_model(x,NUM_OF_CLASSES),X_train,y_train,X_test,y_test)
-    removed, best_score, average_score = searcher.search_all(list(np.arange(1, 102, 5)),min_bands=14,epochs=11)
-    logging.info("best_score:=",best_score)
-    logging.info("removed:=",removed)
-    logging.info("average_score:=",average_score)
-    print(removed)
-    print()
+    removed, best_score, average_score = searcher.search_all(list(np.arange(1, 103, 1)),min_bands=14,epochs=100)
+    logging.critical("best_score:=",best_score)
+    logging.critical("removed:=",removed)
+    logging.critical("average_score:=",average_score)
 
