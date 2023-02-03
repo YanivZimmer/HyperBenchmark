@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 now=datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")
-
-logging.basicConfig(filename=f'/var/log/Hyperspectral_{date_time}.log', filemode='w' ,level=logging.DEBUG,force=True,format='%(name)s - %(levelname)s - %(message)s')
+print(os.getcwd())
+logging.basicConfig(filename=f'./logs/Hyperspectral_{date_time}.log', filemode='w' ,level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
 logger=logging.getLogger()
 logger.info("")
 import statistics
