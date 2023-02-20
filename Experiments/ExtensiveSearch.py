@@ -5,9 +5,16 @@ from Experiments.Assesment import Assesment
 now=datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")
 print(os.getcwd())
-logging.basicConfig(filename=f'./logs/Hyperspectral_{date_time}.log', filemode='w' ,level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
+date_time = now.strftime("%m%d%Y_%H%M")
+filename=f'/usr/bin/code/logs/Hyperspectral_extensive_{date_time}.log'
+logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s',handlers=[
+        logging.FileHandler(filename),
+        logging.StreamHandler()
+    ])
+logging.info("hi")
+global logger
 logger=logging.getLogger()
-logger.info("")
+logger.info("ya")    
 import statistics
 from typing import List, Callable, Dict
 import numpy as np
@@ -79,7 +86,7 @@ if __name__== '__main__':
     X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     searcher = ESearcher(lambda x: cnn_model(x,NUM_OF_CLASSES),X_train,y_train,X_test,y_test)
-    removed, best_score, average_score = searcher.search_all(list(np.arange(1, 103, 1)),min_bands=14,epochs=100)
+    removed, best_score, average_score = searcher.search_all(list(np.arange(1, 103, 1)),min_bands=14,epochs=75)
     logger.critical("best_score:=",best_score)
     logger.critical("removed:=",removed)
     logger.critical("average_score:=",average_score)

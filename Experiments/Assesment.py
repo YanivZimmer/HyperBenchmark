@@ -24,7 +24,7 @@ class Assesment:
         masked_x_train = self.X_train[...,bands,:]
         masked_x_test = self.X_test[...,bands,:]
         from _datetime import datetime
-        logger.debug(datetime.now())
+        logging.debug(datetime.now())
         model = self.model_creator(len(bands))
 
         history = model.fit(

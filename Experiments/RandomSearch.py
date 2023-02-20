@@ -10,10 +10,15 @@ from HyperDataLoader.HyperDataLoader import HyperDataLoader
 from models.cnn1_model import cnn_model
 from tensorflow.keras.utils import to_categorical
 import random
+import os
+print(os.getcwd())
 now=datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")
-logging.basicConfig(filename=f'../logs/Hyperspectral_random_{date_time}.log', filemode='w'
-                    ,level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
+filename=f'/usr/bin/code/logs/Hyperspectral_random_{date_time}.log'
+logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s',handlers=[
+        logging.FileHandler(filename),
+        logging.StreamHandler()
+    ])
 global logger
 logger=logging.getLogger()
 logger.info("")
