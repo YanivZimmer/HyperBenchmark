@@ -1,6 +1,7 @@
 import logging
 import multiprocessing
 import os
+import sys
 from datetime import datetime
 from multiprocessing import Pool
 from pathos.multiprocessing import ProcessingPool as Pool
@@ -141,6 +142,11 @@ class ESearcher(Assesment):
 
 if __name__ == '__main__':
     logging.info("Start")
+    try:
+        parallel_runs=int(sys.argv[1])
+    except:
+        logging.error("No parallel run defined, you should add it as first cmd arg")
+        raise AttributeError("No parallel run defined, you should add it as first cmd arg")
     NUM_OF_CLASSES = 10
     loader=HyperDataLoader.HyperDataLoader()
     labeled_data = loader.generate_vectors("PaviaU", (1, 1))
@@ -157,7 +163,7 @@ if __name__ == '__main__':
 
     temp=list(np.arange(1, 103, 5))
     print(temp)
-    removed, best_score, average_score = searcher.search_all(temp,min_bands=14,epochs=75)
+    removed, best_score, average_score = searcher.search_all(temp,min_bands=14,epochs=75,parallel_runs=parallel_runs)
     logging.info(f"IMPORTANT best_score:={best_score}")
     logging.info(f"IMPORTANT removed:={removed}")
     logging.info(f"IMPORTANT average_score:={average_score}")
