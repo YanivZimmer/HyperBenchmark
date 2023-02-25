@@ -6,7 +6,7 @@ from tensorflow.keras.models import Model
 import logging
 from datetime import datetime
 from Experiments.Assesment import Assesment
-from HyperDataLoader.HyperDataLoader import HyperDataLoader
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from models.cnn1_model import cnn_model
 from tensorflow.keras.utils import to_categorical
 import random

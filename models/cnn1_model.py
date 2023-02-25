@@ -6,7 +6,7 @@ from tensorflow.keras.layers import (
     Dense,
     Conv1D,
 )
-from HyperDataLoader.HyperDataLoader import HyperDataLoader
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
