@@ -54,8 +54,8 @@ class RandomSearch(Assesment):
             best_score[amount] = max(scores)
             average_score[amount] = statistics.mean(scores)
             selected[amount] = candidates[np.argmax(scores)]
-            amount -= 1
             logger.info(f"Average score for {amount}) is {average_score[amount]}")
+            amount -= 1
         return selected, best_score, average_score
 
 
