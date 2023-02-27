@@ -89,9 +89,8 @@ def cnn_model(input_size, num_of_class):
             "accuracy",
         ],
     )
-    model.summary()
+    #model.summary()
     return model
-
 
 def hsi_drive_cnn1():
     X_train, X_test, y_train, y_test = combine_hsi_drive()

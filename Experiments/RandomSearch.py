@@ -16,7 +16,7 @@ now=datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")
 filename=f'/usr/bin/code/logs/Hyperspectral_random_{date_time}.log'
 logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s',handlers=[
-        logging.FileHandler(filename),
+        #logging.FileHandler(filename),
         logging.StreamHandler()
     ])
 global logger
@@ -54,8 +54,8 @@ class RandomSearch(Assesment):
             best_score[amount] = max(scores)
             average_score[amount] = statistics.mean(scores)
             selected[amount] = candidates[np.argmax(scores)]
-            amount -= 1
             logger.info(f"Average score for {amount}) is {average_score[amount]}")
+            amount-=1
         return selected, best_score, average_score
 
 

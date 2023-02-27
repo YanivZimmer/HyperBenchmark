@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import List, Callable, Dict
 import numpy as np
 from tensorflow.keras.models import Model
@@ -23,13 +24,22 @@ class Assesment:
     ) -> (Model, float):
         masked_x_train = self.X_train[...,bands,:]
         masked_x_test = self.X_test[...,bands,:]
-        from _datetime import datetime
-        logging.debug(datetime.now())
-        model = self.model_creator(len(bands))
+        created=False
+        while not created:
+            try:
+                model = self.model_creator(len(bands))
+                print("created!!!!!!!!!!!!!")
+                created = True
+            except Exception as e:
+                logging.error(f"failed to create model because: {str(e)} ")
+                SLEEP_TIME_MIN = 2
+                logging.info(f"Sleep for {SLEEP_TIME_MIN} min")
+                time.sleep(60*SLEEP_TIME_MIN)
 
         history = model.fit(
             masked_x_train,
             self.y_train,
+            verbose=0,
             *args,
             **kwargs
         )
