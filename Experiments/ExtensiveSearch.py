@@ -1,9 +1,15 @@
 import logging
 import multiprocessing
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# import tensorflow as tf
+# tf.get_logger().setLevel('INFO')
+
 import sys
 from datetime import datetime
 from multiprocessing import Pool
+from gpu_utils.gpu_utils import pick_gpu_lowest_memory
+import tensorflow.python
 from pathos.multiprocessing import ProcessingPool as Pool
 from Assesment import Assesment
 
@@ -81,8 +87,11 @@ class ESearcher(Assesment):
     def assess_once(
         self, bands: List[int], result_queue: multiprocessing.Queue, *args, **kwargs
     ) -> float:
-        print("here:", bands)
-        _, [loss, score] = self.assess_bands(bands, *args, **kwargs)
+        print("bands:", bands)
+        device_num=pick_gpu_lowest_memory()
+        full_gpu_name=f'/gpu:{device_num}'
+        with tensorflow.device(full_gpu_name):
+            _, [loss, score] = self.assess_bands(bands, *args, **kwargs)
         result_queue.put(score)
         return score
 
@@ -128,6 +137,16 @@ class ESearcher(Assesment):
         average_score = {}
         removed = []
         while len(bands) > min_bands:
+
+            if len(bands) % 1 == 0:
+                print(f"Checkpoint on {len(bands)} bands remained")
+                logging.info(f"IMPORTANT best_score:={best_score}")
+                print(best_score)
+                logging.info(f"IMPORTANT removed:={removed}")
+                print(removed)
+                logging.info(f"IMPORTANT average_score:={average_score}")
+                print(average_score)
+
             results = self.search_parallel(bands, parallel_runs, *args, **kwargs)
             worst_band = self.find_worst(results)
             removed.append(worst_band)
@@ -173,11 +192,11 @@ if __name__ == "__main__":
     temp = list(np.arange(1, 103, 1))
     print(temp)
     removed, best_score, average_score = searcher.search_all(
-        temp, min_bands=14, epochs=30, parallel_runs=parallel_runs
+        temp, min_bands=14, epochs=1, parallel_runs=parallel_runs
     )
-    logging.info(f"IMPORTANT best_score:={best_score}")
+    logging.info(f"IMPORTANT FINAL best_score:={best_score}")
     print(best_score)
-    logging.info(f"IMPORTANT removed:={removed}")
+    logging.info(f"IMPORTANT FINAL removed:={removed}")
     print(removed)
-    logging.info(f"IMPORTANT average_score:={average_score}")
+    logging.info(f"IMPORTANT FINAL average_score:={average_score}")
     print(average_score)

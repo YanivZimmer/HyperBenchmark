@@ -24,13 +24,20 @@ class Assesment:
         masked_x_train = self.X_train[..., bands, :]
         masked_x_test = self.X_test[..., bands, :]
         created = False
+        max_try = 6
+        tries = 0
         while not created:
             try:
                 model = self.model_creator(len(bands))
                 created = True
             except Exception as e:
+                msg=f"failed to create model because: {str(e)} "
+                print(msg)
                 logging.error(f"failed to create model because: {str(e)} ")
-                SLEEP_TIME_MIN = 2
+                if max_try < tries:
+                    break
+                tries += 1
+                SLEEP_TIME_MIN = 0.1
                 logging.info(f"Sleeping for {SLEEP_TIME_MIN} min")
                 time.sleep(60 * SLEEP_TIME_MIN)
         trained = False
@@ -47,10 +54,12 @@ class Assesment:
                 )
                 trained = True
             except Exception as e:
-                logging.error(f"failed to train model because: {str(e)} ")
+                msg=f"failed to train model because: {str(e)}"
+                print(msg)
+                logging.error(msg)
                 if max_try<tries:
                     break
-                SLEEP_TIME_MIN = 2
+                SLEEP_TIME_MIN = 0.1
                 logging.info(f"Sleeping for {SLEEP_TIME_MIN} min")
                 time.sleep(60 * SLEEP_TIME_MIN)
                 tries += 1
