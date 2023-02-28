@@ -86,5 +86,8 @@ if __name__ == "__main__":
         14, 3, epochs=50
     )  # searcher.search_all(list(np.arange(1, 103, 1)),min_bands=14,epochs=100)
     logger.info("best_score:=", best_score)
+    print(best_score)
     logger.info("average_score:=", average_score)
+    print(average_score)
     logger.info("selected:=", selected)
+    print(selected)

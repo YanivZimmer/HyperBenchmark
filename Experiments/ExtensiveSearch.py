@@ -176,5 +176,8 @@ if __name__ == "__main__":
         temp, min_bands=14, epochs=30, parallel_runs=parallel_runs
     )
     logging.info(f"IMPORTANT best_score:={best_score}")
+    print(best_score)
     logging.info(f"IMPORTANT removed:={removed}")
+    print(removed)
     logging.info(f"IMPORTANT average_score:={average_score}")
+    print(average_score)
