@@ -27,21 +27,33 @@ class Assesment:
         while not created:
             try:
                 model = self.model_creator(len(bands))
-                print("created!!!!!!!!!!!!!")
                 created = True
             except Exception as e:
                 logging.error(f"failed to create model because: {str(e)} ")
                 SLEEP_TIME_MIN = 2
-                logging.info(f"Sleep for {SLEEP_TIME_MIN} min")
+                logging.info(f"Sleeping for {SLEEP_TIME_MIN} min")
                 time.sleep(60 * SLEEP_TIME_MIN)
-
-        history = model.fit(
-            masked_x_train,
-            self.y_train,
-            # verbose=0,
-            *args,
-            **kwargs,
-        )
+        trained = False
+        max_try = 6
+        tries = 0
+        while not trained:
+            try:
+                history = model.fit(
+                    masked_x_train,
+                    self.y_train,
+                    verbose=0,
+                    *args,
+                    **kwargs,
+                )
+                trained = True
+            except Exception as e:
+                logging.error(f"failed to train model because: {str(e)} ")
+                if max_try<tries:
+                    break
+                SLEEP_TIME_MIN = 2
+                logging.info(f"Sleeping for {SLEEP_TIME_MIN} min")
+                time.sleep(60 * SLEEP_TIME_MIN)
+                tries += 1
         results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
         logging.debug("Accuracy over test set is {0}".format(results))
         return model, results
