@@ -189,7 +189,7 @@ if __name__ == "__main__":
     temp = list(np.arange(1, 103, 1))
     print(temp)
     removed, best_score, average_score = searcher.search_all(
-        temp, min_bands=14, epochs=1, parallel_runs=parallel_runs
+        temp, min_bands=14, epochs=50, parallel_runs=parallel_runs
     )
     logging.info(f"IMPORTANT FINAL best_score:={best_score}")
     print(best_score)

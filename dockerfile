@@ -20,7 +20,7 @@ RUN cd /usr/bin/code
 RUN ls -la
 RUN export PYTHONPATH=/usr/bin/code
 WORKDIR /usr/bin/code/Experiments
-CMD python ExtensiveSearch.py 4
+CMD python ExtensiveSearch.py 1
 
 #docker build . -t hyper:0.1
 #docker run -d -v /var/log:/var/log hyper:0.0
