@@ -88,10 +88,7 @@ class ESearcher(Assesment):
         self, bands: List[int], result_queue: multiprocessing.Queue, *args, **kwargs
     ) -> float:
         print("bands:", bands)
-        device_num=pick_gpu_lowest_memory()
-        full_gpu_name=f'/gpu:{device_num}'
-        with tensorflow.device(full_gpu_name):
-            _, [loss, score] = self.assess_bands(bands, *args, **kwargs)
+        _, [loss, score] = self.assess_bands(bands, *args, **kwargs)
         result_queue.put(score)
         return score
 
