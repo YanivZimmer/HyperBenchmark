@@ -4,7 +4,8 @@ from typing import List, Callable, Dict
 import numpy as np
 from tensorflow.keras.models import Model
 from gpu_utils.gpu_utils import pick_gpu_lowest_memory
-import tensorflow
+import tensorflow as tf
+
 class Assesment:
     def __init__(
         self,
@@ -26,18 +27,25 @@ class Assesment:
         created = False
         max_try = 6
         tries = 0
-        device_num_org=pick_gpu_lowest_memory()
-        device_num=device_num_org
+        device_num_org = pick_gpu_lowest_memory()
+        device_num = device_num_org
         while not created:
             try:
-                full_gpu_name=f'/gpu:{device_num}'
-                with tensorflow.device(full_gpu_name):
-                  model = self.model_creator(len(bands))
-                  history = model.fit(masked_x_train,self.y_train,verbose=0,*args,**kwargs,)
-                  results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
-                  logging.debug("Accuracy over test set is {0}".format(results))
-                  return model, results
-                  created = True
+                logging.debug(f"Try for device {device_num} ")
+                print(f"Try for device {device_num} ")
+                #full_gpu_name= tensorflow.config.get_visible_devices()[device_num].name
+                #with tensorflow.device(full_gpu_name):
+
+                config = tf.ConfigProto()
+                config.gpu_options.visible_device_list = str(device_num)
+                with tf.Session(config) as sess:
+                    model = self.model_creator(len(bands))
+                    history = model.fit(masked_x_train,self.y_train,verbose=0,*args,**kwargs,)
+                    results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
+                    logging.debug("Accuracy over test set is {0}".format(results))
+                    return model, results
+                    created = True
+
             except Exception as e:
                 msg=f"failed to create\train model because: {str(e)} "
                 print(msg)
