@@ -6,7 +6,10 @@ from tensorflow.keras.models import Model
 from gpu_utils.gpu_utils import pick_gpu_lowest_memory
 import tensorflow as tf
 import os
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+logger_tf = tf.get_logger()
+logger_tf.setLevel(logging.ERROR)
 
 
 class Assesment:
@@ -32,7 +35,7 @@ class Assesment:
         tries = 0
         while not created:
             try:
-              tf.debugging.set_log_device_placement(True)
+              tf.debugging.set_log_device_placement(False)
               gpus = tf.config.list_logical_devices('GPU')
               strategy = tf.distribute.MirroredStrategy(gpus)
               with strategy.scope():

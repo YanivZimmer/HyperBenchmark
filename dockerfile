@@ -18,7 +18,10 @@ RUN pip install scikit-learn
 RUN pwd
 RUN cd /usr/bin/code
 RUN ls -la
+
 RUN export PYTHONPATH=/usr/bin/code
+RUN export TF_CPP_MIN_LOG_LEVEL=3
+
 WORKDIR /usr/bin/code/Experiments
 CMD python ExtensiveSearch.py 1
 

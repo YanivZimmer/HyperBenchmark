@@ -1,9 +1,7 @@
 import logging
 import multiprocessing
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-# import tensorflow as tf
-# tf.get_logger().setLevel('INFO')
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 from datetime import datetime
@@ -144,7 +142,7 @@ class ESearcher(Assesment):
                 logging.info(f"IMPORTANT average_score:={average_score}")
                 print(average_score)
 
-            results = self.search_parallel(bands, parallel_runs, *args, **kwargs)
+            results = self.search_without_one(bands, *args, **kwargs)
             worst_band = self.find_worst(results)
             removed.append(worst_band)
             score = results[worst_band]
