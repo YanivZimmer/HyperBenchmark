@@ -8,9 +8,11 @@ from datetime import datetime
 from multiprocessing import Pool
 from gpu_utils.gpu_utils import pick_gpu_lowest_memory
 import tensorflow.python
-from pathos.multiprocessing import ProcessingPool as Pool
+#from pathos.multiprocessing import ProcessingPool as Pool
 from Assesment import Assesment
-
+import tensorflow as tf
+logger_tf = tf.get_logger()
+logger_tf.setLevel(logging.ERROR)
 now = datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")
 print(os.getcwd())
