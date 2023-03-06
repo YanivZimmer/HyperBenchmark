@@ -4,7 +4,7 @@ import os
 import numpy as np
 from typing import Dict, Tuple, List, Union
 from scipy.io import loadmat
-from HyperDataLoader.png_to_mat import png_to_array
+from hyper_data_loader.png_to_mat import png_to_array
 from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
 from tensorflow.keras.utils import to_categorical

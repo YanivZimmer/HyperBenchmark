@@ -6,7 +6,7 @@ from tensorflow.keras.layers import (
     Dense,
     Conv1D,
 )
-from HyperDataLoader.HyperDataLoader import HyperDataLoader
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
@@ -31,7 +31,7 @@ def pavia_cnn1():
     model = cnn_model(INPUT_SHAPE_PAVIA, NUM_CLASSES_PAVIA)
 
     X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
-    #X_train = X_train.reshape((1, X_train.shape[0], X_train.shape[1]))
+    # X_train = X_train.reshape((1, X_train.shape[0], X_train.shape[1]))
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     history = model.fit(X_train, y_train, epochs=100, batch_size=256, verbose=1)
     results = model.evaluate(X_test, y_test, batch_size=256)
@@ -52,7 +52,7 @@ def filter_unlablled(X, y):
 
 def combine_hsi_drive(test_size=0.33):
     loader = HyperDataLoader()
-    labeled_data = loader.generate_vectors("HSI-drive",patch_shape=(1,1))
+    labeled_data = loader.generate_vectors("HSI-drive", patch_shape=(1, 1))
     X, y = labeled_data[0].image, labeled_data[0].lables
     for item in labeled_data[1:]:
         X = np.concatenate((X, item.image))
@@ -71,7 +71,7 @@ def cnn_model(input_size, num_of_class):
             Conv1D(
                 kernel_size=11,
                 filters=20 * 93,
-                input_shape=(input_size,1),
+                input_shape=(input_size, 1),
                 activation="tanh",
             ),
             MaxPooling1D(pool_size=3),
@@ -89,7 +89,7 @@ def cnn_model(input_size, num_of_class):
             "accuracy",
         ],
     )
-    model.summary()
+    # model.summary()
     return model
 
 
@@ -100,11 +100,13 @@ def hsi_drive_cnn1():
     X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     print("aft", X_train.shape, X_test.shape)
-    history = model.fit(X_train[:123456], y_train[:123456], epochs=50, batch_size=2048, verbose=1)
+    history = model.fit(
+        X_train[:123456], y_train[:123456], epochs=50, batch_size=2048, verbose=1
+    )
     results = model.evaluate(X_test, y_test, batch_size=2048)
     print("Accuracy over test set is {0}".format(results))
     return model, X_test, y_test
 
 
-#pavia_cnn1()
-#hsi_drive_cnn1()
+# pavia_cnn1()
+# hsi_drive_cnn1()

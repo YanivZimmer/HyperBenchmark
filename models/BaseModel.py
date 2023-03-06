@@ -1,7 +1,7 @@
 import numpy as np
 from tensorflow import keras
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
-from HyperDataLoader.HyperDataLoader import HyperDataLoader
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
