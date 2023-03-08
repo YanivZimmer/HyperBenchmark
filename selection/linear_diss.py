@@ -3,7 +3,7 @@ import numpy as np
 
 class LinearDiss:
     def calc_dissimilarity(self, space_matrix, candidate):
-        approx_repr = self.calc_aprrox_linear_repr(space_matrix, candidate)
+        approx_repr = self.calc_aprrox_linear_repr(space_matrix, candidate).T
         approx_values = np.matmul(space_matrix, approx_repr)
         error = self.distance(approx_values, candidate)
         return error
