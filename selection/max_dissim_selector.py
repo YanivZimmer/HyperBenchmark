@@ -1,7 +1,8 @@
+import logging
 from typing import Dict
 
 import numpy as np
-from linear_diss import LinearDiss
+from .linear_diss import LinearDiss
 
 
 class MaxDissimSelector:
@@ -30,5 +31,10 @@ class MaxDissimSelector:
 
         return max_band_idx
 
-    def select_all_best_bands(self):
-        pass
+    def select_all_best_bands(self,limit):
+        counter = 0
+        while len(self.bands_vector_mapping) > 0 and counter < limit:
+            print("Selecting...")
+            self.select_best_band()
+            print(self.selected_bands)
+            counter += 1
