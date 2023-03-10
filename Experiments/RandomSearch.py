@@ -11,10 +11,12 @@ from models.cnn1_model import cnn_model
 from tensorflow.keras.utils import to_categorical
 import random
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
+
 logger_tf = tf.get_logger()
-logger_tf.setLevel(logging.ERROR) 
+logger_tf.setLevel(logging.ERROR)
 print(os.getcwd())
 now = datetime.now()
 date_time = now.strftime("%m%d%Y_%H%M")

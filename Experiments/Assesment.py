@@ -6,8 +6,10 @@ from tensorflow.keras.models import Model
 from gpu_utils.gpu_utils import pick_gpu_lowest_memory
 import tensorflow as tf
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
+
 logger_tf = tf.get_logger()
 logger_tf.setLevel(logging.ERROR)
 
@@ -35,19 +37,25 @@ class Assesment:
         tries = 0
         while not created:
             try:
-              tf.debugging.set_log_device_placement(False)
-              gpus = tf.config.list_logical_devices('GPU')
-              strategy = tf.distribute.MirroredStrategy(gpus)
-              with strategy.scope():
-                model = self.model_creator(len(bands))
-                history = model.fit(masked_x_train,self.y_train,verbose=0,*args,**kwargs,)
-                results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
-                logging.debug("Accuracy over test set is {0}".format(results))
-                return model, results
-                created = True
+                tf.debugging.set_log_device_placement(False)
+                gpus = tf.config.list_logical_devices("GPU")
+                strategy = tf.distribute.MirroredStrategy(gpus)
+                with strategy.scope():
+                    model = self.model_creator(len(bands))
+                    history = model.fit(
+                        masked_x_train,
+                        self.y_train,
+                        verbose=0,
+                        *args,
+                        **kwargs,
+                    )
+                    results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
+                    logging.debug("Accuracy over test set is {0}".format(results))
+                    return model, results
+                    created = True
 
             except Exception as e:
-                msg=f"failed to create\train model because: {str(e)} "
+                msg = f"failed to create\train model because: {str(e)} "
                 print(msg)
                 logging.error(msg)
                 if max_try < tries:

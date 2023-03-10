@@ -27,24 +27,41 @@ def test_repr(linear_diss_calc):
 
 def test_dissim(linear_diss_calc):
     space_mat = np.array([[1, 2], [0, 0]])
-    candidate = np.array([1,0.5])
+    candidate = np.array([1, 0.5])
     error = linear_diss_calc.calc_dissimilarity(space_mat, candidate)
     assert error == 0.5
-    val=linear_diss_calc.calc_dissimilarity(np.ones((2,1)),np.array([1,0]))
+    val = linear_diss_calc.calc_dissimilarity(np.ones((2, 1)), np.array([1, 0]))
     assert val == 0.7071067811865476
 
+
 def test_dissim2(linear_diss_calc):
-    VEC_SIZE=4
-    space_mat = np.array([[1.0,1.0,1.0,1.0],[0.0,0.0,1.0,0.0]]).T#.reshape(VEC_SIZE,2),
-    score1=linear_diss_calc.calc_dissimilarity(space_mat,np.array([1.0, 1.0, 0.0, 1.0]).T)
-    score2=linear_diss_calc.calc_dissimilarity(space_mat,np.array([0.0, 0.0, 1.0, 0.1]).T)
-    score3=linear_diss_calc.calc_dissimilarity(space_mat,np.array([1.0, 0.0, 0.0, 1.0]).T)
-    assert score3>score2
-    assert score2>score1
+    VEC_SIZE = 4
+    space_mat = np.array(
+        [[1.0, 1.0, 1.0, 1.0], [0.0, 0.0, 1.0, 0.0]]
+    ).T  # .reshape(VEC_SIZE,2),
+    score1 = linear_diss_calc.calc_dissimilarity(
+        space_mat, np.array([1.0, 1.0, 0.0, 1.0]).T
+    )
+    score2 = linear_diss_calc.calc_dissimilarity(
+        space_mat, np.array([0.0, 0.0, 1.0, 0.1]).T
+    )
+    score3 = linear_diss_calc.calc_dissimilarity(
+        space_mat, np.array([1.0, 0.0, 0.0, 1.0]).T
+    )
+    assert score3 > score2
+    assert score2 > score1
+
+
 def test_dissim3(linear_diss_calc):
-    VEC_SIZE=4
-    space_mat = np.array([[1.0,1.0,1.0,1.0],[0.0,0.0,1.0,0.0]]).T#.reshape(VEC_SIZE,2),
-    score1=linear_diss_calc.calc_dissimilarity(space_mat,np.array([1.0, 1.0, 0.0, 1.0]).T)
-    score2=linear_diss_calc.calc_dissimilarity(space_mat,np.array([1.0, 0.0, 0.0, 1.0]).T)
-    assert score1<1e-10
-    assert score2>score1
+    VEC_SIZE = 4
+    space_mat = np.array(
+        [[1.0, 1.0, 1.0, 1.0], [0.0, 0.0, 1.0, 0.0]]
+    ).T  # .reshape(VEC_SIZE,2),
+    score1 = linear_diss_calc.calc_dissimilarity(
+        space_mat, np.array([1.0, 1.0, 0.0, 1.0]).T
+    )
+    score2 = linear_diss_calc.calc_dissimilarity(
+        space_mat, np.array([1.0, 0.0, 0.0, 1.0]).T
+    )
+    assert score1 < 1e-10
+    assert score2 > score1
