@@ -1,0 +1,7 @@
+keras 
+tensorflow-gpu
+numpy 
+scipy
+Pillow
+IPython
+scikit-learn

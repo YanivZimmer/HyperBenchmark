@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.covariance import EllipticEnvelope
 
-heatmap = np.load("data.npy")  # load
-heatmap_norm = np.load("data_norm.npy")  # load
+heatmap = np.load("../data.npy")  # load
+heatmap_norm = np.load("../data_norm.npy")  # load
 heatmap_real = np.load("datareal.npy").T  # load
 
 print(heatmap)

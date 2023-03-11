@@ -1,9 +1,7 @@
 import numpy as np
-import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Flatten, Dense, Dropout, BatchNormalization
-from HyperDataLoader import HyperDataLoader
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
@@ -18,7 +16,7 @@ def train_base_model(load_existing):
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     if load_existing:
-        model = keras.models.load_model("model_all_band")
+        model = keras.models.load_model("../model_all_band")
         return model, X_test, y_test
 
     model = keras.Sequential(

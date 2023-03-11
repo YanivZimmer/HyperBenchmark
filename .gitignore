@@ -1,5 +1,7 @@
 #datasets
 datasets/HSI-drive
+#weight
+model_all_band
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
