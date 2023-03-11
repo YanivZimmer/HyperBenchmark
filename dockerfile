@@ -23,7 +23,7 @@ RUN export PYTHONPATH=/usr/bin/code
 RUN export TF_CPP_MIN_LOG_LEVEL=3
 
 WORKDIR /usr/bin/code/Experiments
-CMD python ExtensiveSearch.py 1
+CMD python max_dissm.py
 
 #docker build . -t hyper:0.1
 #docker run -d -v /var/log:/var/log hyper:0.0
