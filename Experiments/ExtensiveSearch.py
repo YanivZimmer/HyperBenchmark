@@ -1,16 +1,19 @@
 import logging
 import multiprocessing
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import sys
 from datetime import datetime
 from multiprocessing import Pool
 from gpu_utils.gpu_utils import pick_gpu_lowest_memory
 import tensorflow.python
-#from pathos.multiprocessing import ProcessingPool as Pool
+
+# from pathos.multiprocessing import ProcessingPool as Pool
 from Assesment import Assesment
 import tensorflow as tf
+
 logger_tf = tf.get_logger()
 logger_tf.setLevel(logging.ERROR)
 now = datetime.now()
