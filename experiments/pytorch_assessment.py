@@ -31,8 +31,8 @@ class PytorchAssesment:
         masked_x_test = self.X_test[..., bands, :]
 
     def create_data_loaders(self, batch_size=32):
-        train_dataset = TensorDataset(Tensor(self.X_train), Tensor(self.y_train))
-        test_dataset = TensorDataset(Tensor(self.X_test),Tensor(self.y_test))
+        train_dataset = TensorDataset(torch.from_numpy(self.X_train), torch.from_numpy(self.y_train))
+        test_dataset = TensorDataset(torch.from_numpy(self.X_test),torch.from_numpy(self.y_test))
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -79,7 +79,7 @@ class PytorchAssesment:
     def assess_bands(self, bands: List[int], *args, **kwargs) -> (nn.Module, float):
         self.mask_data(bands)
         self.create_data_loaders(batch_size=32)
-        self.model, self.optimizer, self.criterion = self.get_model(len(bands))
+        self.model, self.optimizer, self.criterion ,_ = self.get_model(len(bands))
         self.train_model()
         acc = self.test_model()
         return 0, acc
