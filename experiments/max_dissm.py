@@ -45,8 +45,8 @@ class MaxDissm(Assesment):
             current_score = 0
             if i > min_bands:
                 bands = self.max_dissm_selector.selected_bands[:i+1]
-                _, [_,current_score]  =self.assess_bands(bands,epochs=15)#,args,kwargs)
-                print(f"Score for bands {bands} is {current_score}")
+                _, [_,current_score]  =self.assess_bands(bands,epochs=50)#,args,kwargs)
+                print(f"Score for {len(bands)} bands is {current_score}")
             scores.append(current_score)
         print(f"all scores={scores}")
         print(f"selected bands={self.max_dissm_selector.selected_bands}")
@@ -69,7 +69,8 @@ if __name__=='__main__':
         print(searcher.max_dissm_selector.selected_bands)
         searcher.select_once()
         print(searcher.max_dissm_selector.selected_bands)
-        searcher.select_all(limit=25)
+        searcher.select_all(limit=250)
         print(searcher.max_dissm_selector.selected_bands)
         scores=searcher.assess_all(min_bands=14,epochs=50)
+        print("scores",scores)
         
