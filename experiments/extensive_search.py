@@ -11,7 +11,7 @@ from gpu_utils.gpu_utils import pick_gpu_lowest_memory
 import tensorflow.python
 
 # from pathos.multiprocessing import ProcessingPool as Pool
-from Assesment import Assesment
+from assesment import Assesment
 import tensorflow as tf
 
 logger_tf = tf.get_logger()
