@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
-from Experiments.Assesment import Assesment
+from experiments.assesment import Assesment
 import logging
 from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from models.cnn1_model import cnn_model
