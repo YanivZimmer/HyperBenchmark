@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 import torch.optim as optim
+from torch import Tensor
 from torch.nn import init
 # utils
 import math
@@ -15,7 +16,7 @@ import joblib
 from tqdm import tqdm
 from .utils import grouper, sliding_window, count_sliding_window, \
     camel_to_snake
-
+import visdom
 
 def get_model(name, **kwargs):
     """
@@ -89,7 +90,8 @@ def get_model(name, **kwargs):
         center_pixel = True
         model = HuEtAl(n_bands, n_classes)
         # From what I infer from the paper (Eq.7 and Algorithm 1), it is standard SGD with lr = 0.01
-        lr = kwargs.setdefault('learning_rate', 0.01)
+        #lr = kwargs.setdefault('learning_rate', 0.01)
+        lr = kwargs.setdefault('learning_rate', 0.0001)
         optimizer = optim.SGD(model.parameters(), lr=lr)
         criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
         kwargs.setdefault('epoch', 100)
@@ -246,7 +248,8 @@ class HuEtAl(nn.Module):
     def _get_final_flattened_size(self):
         with torch.no_grad():
             x = torch.zeros(1, 1, self.input_channels)
-            x = self.pool(self.conv(x))
+            x = self.conv(x)
+            x = torch.tanh(self.pool(x))
         return x.numel()
 
     def __init__(self, input_channels, n_classes, kernel_size=None, pool_size=None):
@@ -271,6 +274,7 @@ class HuEtAl(nn.Module):
 
     def forward(self, x):
         # [In our design architecture, we choose the hyperbolic tangent function tanh(u)]
+        #x = Tensor(x, device=self.device,dtype=self.conv.weight.dtype)
         x = x.squeeze(dim=-1).squeeze(dim=-1)
         x = x.unsqueeze(1)
         x = self.conv(x)
@@ -967,7 +971,7 @@ class MouEtAl(nn.Module):
 
 def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
           display_iter=100, device=torch.device('cpu'), display=None,
-          val_loader=None, supervision='full'):
+          val_loader=None, supervision='full',save_weights=False):
     """
     Training loop to optimize a network for several epochs and a specified loss
 
@@ -1012,6 +1016,7 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
             if supervision == 'full':
                 output = net(data)
                 # target = target - 1
+                target = target.squeeze()
                 loss = criterion(output, target)
             elif supervision == 'semi':
                 outs = net(data)
@@ -1034,6 +1039,8 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
                               len(data), len(data) * len(data_loader),
                               100. * batch_idx / len(data_loader), mean_losses[iter_])
                 update = None if loss_win is None else 'append'
+                if display is None:
+                    display= visdom.Visdom(env='Default')
                 loss_win = display.line(
                     X=np.arange(iter_ - display_iter, iter_),
                     Y=mean_losses[iter_ - display_iter:iter_],
@@ -1045,7 +1052,6 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
                           }
                 )
                 tqdm.write(string)
-
                 if len(val_accuracies) > 0:
                     val_win = display.line(Y=np.array(val_accuracies),
                                            X=np.arange(len(val_accuracies)),
@@ -1072,7 +1078,7 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
             scheduler.step()
 
         # Save the weights
-        if e % save_epoch == 0:
+        if save_weights and e % save_epoch == 0:
             save_model(net, camel_to_snake(str(net.__class__.__name__)), data_loader.dataset.name, epoch=e,
                        metric=abs(metric))
 
