@@ -51,7 +51,7 @@ class PytorchAssesment:
                 scores = self.model(x)
                 _, predictions = scores.max(1)
                 y = y.squeeze()
-                y = torch.argmax(y, dim=1)
+                y = torch.argmax(y)
                 num_correct += (y == predictions).sum().item()
                 num_samples += predictions.size(0)
 
