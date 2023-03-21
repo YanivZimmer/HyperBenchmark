@@ -72,6 +72,7 @@ if __name__ == "__main__":
     X, y = loader.filter_unlabeled(X, y)
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    RGB = [10, 27, 46]
     #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     #X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         asseser = AssessGiven(
             lambda x: mini_model3(x, 10), X_train, y_train, X_test, y_test
         )
-        model, results = asseser.assess_bands([90, 17, 61],epochs=100)
+        model, results = asseser.assess_bands(RGB, epochs=75)
         print(results)
     except Exception as e:
         print(str(e))

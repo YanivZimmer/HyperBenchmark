@@ -12,6 +12,8 @@ from tensorflow.keras.utils import to_categorical
 import random
 import os
 
+from models.mini_model_fn import mini_model3
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 
@@ -45,19 +47,19 @@ class RandomSearch(Assesment):
     ):
         super().__init__(model_creator, X_train, y_train, X_test, y_test)
 
-    def random_assess(self, min_bands, attempts_per_bands_amounts, *args, **kwargs):
+    def random_assess(self, min_bands,max_bands, attempts_per_bands_amounts, *args, **kwargs):
         # expect second last dim of X_train to be number of bands
         best_score = {}
         average_score = {}
         selected = {}
-        amount = self.X_train.shape[-2]
+        amount = max_bands
         while amount > min_bands:
             scores = []
             candidates = []
             for i in range(attempts_per_bands_amounts):
                 bands = np.sort(
                     np.random.choice(
-                        range(1, self.X_train.shape[-2] + 1), amount, replace=False
+                        range(1, amount + 1), amount, replace=False
                     )
                 )  # random.sample(range(1, self.X_train.shape[-2]+1), amount)
                 candidates.append(bands)
@@ -82,13 +84,13 @@ if __name__ == "__main__":
     X, y = loader.filter_unlabeled(X, y)
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
-    X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
-    X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+    #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+    #X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     searcher = RandomSearch(
-        lambda x: cnn_model(x, NUM_OF_CLASSES), X_train, y_train, X_test, y_test
+        lambda x: mini_model3(x, NUM_OF_CLASSES), X_train, y_train, X_test, y_test
     )
     selected, best_score, average_score = searcher.random_assess(
-        14, 3, epochs=50
+        0, 103, 2, epochs=75
     )  # searcher.search_all(list(np.arange(1, 103, 1)),min_bands=14,epochs=100)
     logger.info("best_score:=", best_score)
     print(best_score)

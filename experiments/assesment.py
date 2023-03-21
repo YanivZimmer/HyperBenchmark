@@ -36,14 +36,18 @@ class Assesment:
         created = False
         max_try = 1
         tries = 0
-        model = self.model_creator(len(bands))
-        history = model.fit(
-            masked_x_train,
-            self.y_train,
-            verbose=0,
-            *args,
-            **kwargs,
-        )
+        tf.debugging.set_log_device_placement(False)
+        gpus = tf.config.list_logical_devices("GPU")
+        strategy = tf.distribute.MirroredStrategy(gpus)
+        with strategy.scope():
+            model = self.model_creator(len(bands))
+            history = model.fit(
+                masked_x_train,
+                self.y_train,
+                verbose=0,
+                *args,
+                **kwargs,
+            )
         results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
         logging.debug("Accuracy over test set is {0}".format(results))
         return model, results
