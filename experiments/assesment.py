@@ -29,40 +29,21 @@ class Assesment:
         self.y_test = y_test
 
     def assess_bands(self, bands: List[int], *args, **kwargs) -> (Model, float):
-        masked_x_train = self.X_train[..., bands, :]
-        masked_x_test = self.X_test[..., bands, :]
+        #masked_x_train = self.X_train[..., bands, :]
+        #masked_x_test = self.X_test[..., bands, :]
+        masked_x_train = self.X_train[..., bands]
+        masked_x_test = self.X_test[..., bands]
         created = False
-        max_try = 6
+        max_try = 1
         tries = 0
-        while not created:
-            try:
-                tf.debugging.set_log_device_placement(False)
-                gpus = tf.config.list_logical_devices("GPU")
-                strategy = tf.distribute.MirroredStrategy(gpus)
-                with strategy.scope():
-                    model = self.model_creator(len(bands))
-                    history = model.fit(
-                        masked_x_train,
-                        self.y_train,
-                        verbose=0,
-                        *args,
-                        **kwargs,
-                    )
-                    results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
-                    logging.debug("Accuracy over test set is {0}".format(results))
-                    return model, results
-                    created = True
-
-            except Exception as e:
-                msg = f"failed to create\train model because: {str(e)} "
-                print(msg)
-                logging.error(msg)
-                if max_try < tries:
-                    break
-                tries += 1
-                SLEEP_TIME_MIN = 2
-                logging.info(f"Sleeping for {SLEEP_TIME_MIN} min")
-                time.sleep(60 * SLEEP_TIME_MIN)
+        model = self.model_creator(len(bands))
+        history = model.fit(
+            masked_x_train,
+            self.y_train,
+            verbose=0,
+            *args,
+            **kwargs,
+        )
         results = model.evaluate(masked_x_test, self.y_test, batch_size=256)
         logging.debug("Accuracy over test set is {0}".format(results))
         return model, results
