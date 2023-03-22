@@ -52,8 +52,9 @@ class RandomSearch(Assesment):
         best_score = {}
         average_score = {}
         selected = {}
-        amount = max_bands
-        while amount > min_bands:
+        #amount = max_bands
+        amount=1
+        while max_bands >= amount:
             scores = []
             candidates = []
             for i in range(attempts_per_bands_amounts):
@@ -71,7 +72,7 @@ class RandomSearch(Assesment):
             average_score[amount] = statistics.mean(scores)
             selected[amount] = candidates[np.argmax(scores)]
             logger.info(f"Average score for {amount}) is {average_score[amount]}")
-            amount -= 1
+            amount += 1
         return selected, best_score, average_score
 
 
