@@ -28,11 +28,13 @@ class Assesment:
         self.X_test = X_test
         self.y_test = y_test
 
-    def assess_bands(self, bands: List[int], *args, **kwargs) -> (Model, float):
-        #masked_x_train = self.X_train[..., bands, :]
-        #masked_x_test = self.X_test[..., bands, :]
-        masked_x_train = self.X_train[..., bands]
-        masked_x_test = self.X_test[..., bands]
+    def assess_bands(self, bands: List[int],is_cnn:bool, *args, **kwargs) -> (Model, float):
+        if is_cnn:
+            masked_x_train = self.X_train[..., bands, :]
+            masked_x_test = self.X_test[..., bands, :]
+        else:
+            masked_x_train = self.X_train[..., bands]
+            masked_x_test = self.X_test[..., bands]
         created = False
         max_try = 1
         tries = 0
