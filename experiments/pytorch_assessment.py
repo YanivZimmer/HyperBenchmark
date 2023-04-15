@@ -34,7 +34,7 @@ class PytorchAssesment:
 
     def create_data_loaders(self, batch_size=32):
         train_dataset = TensorDataset(torch.from_numpy(self.X_train), torch.from_numpy(self.y_train))
-        test_dataset = TensorDataset(torch.from_numpy(self.X_test),torch.from_numpy(self.y_test))
+        test_dataset = TensorDataset(torch.from_numpy(self.X_test), torch.from_numpy(self.y_test))
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -81,7 +81,7 @@ class PytorchAssesment:
     def train_model(self,epochs):
         for epoch in range(epochs):  # loop over the dataset multiple times
             running_loss = 0.0
-            for i, data in enumerate(self.train_loader, 0):
+            for i, data in enumerate(self.train_loader):
                 # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data
                 # zero the parameter gradients

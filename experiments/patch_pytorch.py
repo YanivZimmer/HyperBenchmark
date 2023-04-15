@@ -45,4 +45,4 @@ if __name__ == "__main__":
     #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
     #X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     pa = PytorchAssesment(get_model, X_train, y_train, X_test, y_test)
-    pa.assess_bands(list(range(1, 104)),epochs=20,batch_size=1)
+    pa.assess_bands(list(range(1, 104)),epochs=2,batch_size=32)

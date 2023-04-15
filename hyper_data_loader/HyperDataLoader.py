@@ -34,16 +34,16 @@ class HyperDataLoader:
     def __init__(self):
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
-                "../datasets/PaviaU/image/PaviaU.mat",
-                "../datasets/PaviaU/labels/PaviaU_gt.mat",
+                "../../datasets/PaviaU/image/PaviaU.mat",
+                "../../datasets/PaviaU/labels/PaviaU_gt.mat",
                 "paviaU",
                 "paviaU_gt",
                 True,
                 False,
             ),
             "HSI-drive": DatasetParams(
-                "../datasets/HSI-drive/cubes_float32",
-                "../datasets/HSI-drive/labels",
+                "../../datasets/HSI-drive/cubes_float32",
+                "../../datasets/HSI-drive/labels",
                 "cube_fl32",
                 "M",
                 False,
@@ -186,14 +186,14 @@ class HyperDataLoader:
         return Labeled_Data(data, gt)
 
     def generate_vectors(
-        self, dataset: str, patch_shape: Tuple[int, int]
+        self, dataset: str, patch_shape: Tuple[int, int],limit=2
     ) -> List[Labeled_Data]:
         vectors_list = []
-        labled_data = self.load_dataset_supervised(dataset, patch_shape)
+        labled_data = self.load_dataset_supervised(dataset, patch_shape,limit=limit)
         for item in labled_data:
-            X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
+            #X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
             Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
-            vectors_list.append(Labeled_Data(X, Y))
+            vectors_list.append(Labeled_Data(item.image, Y))
         return vectors_list
 
     def load_dataset_unsupervised(self, Name: str) -> np.ndarray:
