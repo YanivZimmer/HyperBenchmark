@@ -1,5 +1,6 @@
 import math
 import os
+import random
 
 import numpy as np
 from typing import Dict, Tuple, List, Union
@@ -128,7 +129,7 @@ class HyperDataLoader:
         )
 
     def load_dataset_supervised(
-        self, dataset_name: str, patch_shape: Tuple[int, int], limit=float("inf")
+        self, dataset_name: str, patch_shape: Tuple[int, int], shuffle=True, limit=float("inf")
     ) -> Labeled_Data:
         if self.datasets_params[dataset_name].single_file:
             return [
@@ -138,6 +139,8 @@ class HyperDataLoader:
             ]
         labeled_data_list = []
         datafiles = os.listdir(self.datasets_params[dataset_name].data_path)
+        if shuffle:
+            random.shuffle(datafiles)
         for count, lablefile in enumerate(
             os.listdir(self.datasets_params[dataset_name].lables_path)
         ):
@@ -185,11 +188,11 @@ class HyperDataLoader:
         return Labeled_Data(data, gt)
 
     def generate_vectors(
-        self, dataset: str, patch_shape: Tuple[int, int],limit=2
+        self, dataset: str, patch_shape: Tuple[int, int],shuffle=True,limit=2
     ) ->Labeled_Data:
         vectors_list = []
-        labled_data = self.load_dataset_supervised(dataset, patch_shape,limit=limit)
-        for item in labled_data:
+        labeled_data = self.load_dataset_supervised(dataset, patch_shape,shuffle=shuffle,limit=limit)
+        for item in labeled_data:
             #X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
             Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
             yield Labeled_Data(item.image, Y)

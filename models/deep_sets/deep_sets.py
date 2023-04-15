@@ -27,7 +27,9 @@ class DeepSets(nn.Module):
         # We want to apply the same feature extractor to each element
         # output will have shape (batch_size, out_channels, num_elements)
 
-        b, e, c, h, w = x.shape
+        #For our usecase the channels will always be one for now
+        c = 1
+        b, e, h, w = x.shape
         x_reshape = x.view(b * e, c, h, w)
 
         features = self.feature_extractor(x_reshape)
@@ -73,7 +75,7 @@ def train_model(model, train_loader,epochs,lr, device):
             optimizer.step()
 
             # Print loss every 1000 iterations
-            if (i+1) % 250 == 0:
+            if (i+1) % 50 == 0:
                 print('Epoch {} Iteration [{}/{}], Loss: {:.4f}'.format(epoch+1,i+1, len(train_loader), loss.item()))
 
     # Print message when training is complete
