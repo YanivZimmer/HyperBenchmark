@@ -129,7 +129,7 @@ class HyperDataLoader:
 
     def load_dataset_supervised(
         self, dataset_name: str, patch_shape: Tuple[int, int], limit=float("inf")
-    ) -> List[Labeled_Data]:
+    ) -> Labeled_Data:
         if self.datasets_params[dataset_name].single_file:
             return [
                 self.load_singlefile_supervised(
@@ -160,8 +160,7 @@ class HyperDataLoader:
                 self.datasets_params[dataset_name].transpose,
                 patch_shape,
             )
-            labeled_data_list.append(labled_img)
-        return labeled_data_list
+            yield labled_img
 
     def load_one_supervised(
         self,
@@ -187,14 +186,13 @@ class HyperDataLoader:
 
     def generate_vectors(
         self, dataset: str, patch_shape: Tuple[int, int],limit=2
-    ) -> List[Labeled_Data]:
+    ) ->Labeled_Data:
         vectors_list = []
         labled_data = self.load_dataset_supervised(dataset, patch_shape,limit=limit)
         for item in labled_data:
             #X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
             Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
-            vectors_list.append(Labeled_Data(item.image, Y))
-        return vectors_list
+            yield Labeled_Data(item.image, Y)
 
     def load_dataset_unsupervised(self, Name: str) -> np.ndarray:
         """
