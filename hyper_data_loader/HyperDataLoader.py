@@ -132,11 +132,11 @@ class HyperDataLoader:
         self, dataset_name: str, patch_shape: Tuple[int, int], shuffle=True, limit=float("inf")
     ) -> Labeled_Data:
         if self.datasets_params[dataset_name].single_file:
-            return [
-                self.load_singlefile_supervised(
+            yield self.load_singlefile_supervised(
                     self.datasets_params[dataset_name], patch_shape
                 )
-            ]
+            yield
+
         labeled_data_list = []
         datafiles = os.listdir(self.datasets_params[dataset_name].data_path)
         if shuffle:
@@ -190,7 +190,6 @@ class HyperDataLoader:
     def generate_vectors(
         self, dataset: str, patch_shape: Tuple[int, int],shuffle=True,limit=2
     ) ->Labeled_Data:
-        vectors_list = []
         labeled_data = self.load_dataset_supervised(dataset, patch_shape,shuffle=shuffle,limit=limit)
         for item in labeled_data:
             #X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)

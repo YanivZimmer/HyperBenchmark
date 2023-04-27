@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class DeepSets(nn.Module):
     def __init__(self, in_channels, out_channels, num_hidden, classes_num):
         super(DeepSets, self).__init__()
-        self.feature_extractor = nn.Sequential(
+        self.feature_extractor_shallower = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
@@ -16,6 +16,20 @@ class DeepSets(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
+        self.feature_extractor = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=out_channels, out_channels=out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=out_channels, out_channels=out_channels, kernel_size=2, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+
         self.regressor = nn.Sequential(
             nn.Linear(out_channels, num_hidden),
             nn.ReLU(inplace=True),
@@ -99,6 +113,7 @@ def simple_test_model(model, test_loader, device):
 
     accuracy = 100 * correct / total
     print('Accuracy on test set: {:.2f}%'.format(accuracy))
+    return accuracy
 
 def test_model(model, test_loader, device):
     model.eval()

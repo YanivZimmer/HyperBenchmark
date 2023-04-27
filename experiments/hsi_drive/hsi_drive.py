@@ -47,7 +47,7 @@ def combine_hsi_drive(test_size=0.33):
     return X_train, X_test, y_train, y_test
 
 def train_iter():
-    LIMIT=190
+    LIMIT=1000
     loader = HyperDataLoader()
     for labeled_data_iter in loader.generate_vectors("HSI-drive", patch_shape=(3, 3),shuffle=True,limit=LIMIT):
         X, y = labeled_data_iter.image, labeled_data_iter.lables
@@ -76,10 +76,13 @@ def main_iter(limit):
         y = np.eye(NUM_CLASSES_DRIVE)[item.lables]
         train_loader = create_data_loader(item.image, y, 256)
         train_model(deep_sets, train_loader, epochs=1, lr=0.00001, device=device)
-    for i in range(10):
+    acc_list=[]
+    for i in range(20):
         values = next(iter)
         test_loader = create_data_loader(values.image, values.lables, 256)
-        simple_test_model(deep_sets, test_loader, device=device)
+        acc=simple_test_model(deep_sets, test_loader, device=device)
+        acc_list.append(acc)
+    print(f"Average acc on {len(acc_list)} images: {sum(acc_list)/len(acc_list)}")
 
 if __name__=='__main__':
-    main_iter(150)
+    main_iter(210)
