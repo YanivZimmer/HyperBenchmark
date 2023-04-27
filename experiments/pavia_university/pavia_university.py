@@ -48,7 +48,9 @@ def test_bands_mlp(bands):
     train_loader = create_data_loader(X_train, y_train, 256)
     test_loader = create_data_loader(X_test, y_test, 256)
     train_model(mlp, train_loader, epochs=100, lr=0.000025, device=device)
-    simple_test_model(mlp, test_loader, device=device)
+    return simple_test_model(mlp, test_loader, device=device)
+
 if __name__ == '__main__':
-    test_bands_mlp(range(1,103))
+    acc=test_bands_mlp(range(1,103))
+    print(acc)
 
