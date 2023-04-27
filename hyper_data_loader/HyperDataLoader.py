@@ -1,5 +1,6 @@
 import math
 import os
+import random
 
 import numpy as np
 from typing import Dict, Tuple, List, Union
@@ -34,16 +35,16 @@ class HyperDataLoader:
     def __init__(self):
         self.datasets_params: Dict[str, DatasetParams] = {
             "PaviaU": DatasetParams(
-                "../datasets/PaviaU/image/PaviaU.mat",
-                "../datasets/PaviaU/labels/PaviaU_gt.mat",
+                "../../datasets/PaviaU/image/PaviaU.mat",
+                "../../datasets/PaviaU/labels/PaviaU_gt.mat",
                 "paviaU",
                 "paviaU_gt",
                 True,
                 False,
             ),
             "HSI-drive": DatasetParams(
-                "../datasets/HSI-drive/cubes_float32",
-                "../datasets/HSI-drive/labels",
+                "../../datasets/HSI-drive/cubes_float32",
+                "../../datasets/HSI-drive/labels",
                 "cube_fl32",
                 "M",
                 False,
@@ -128,16 +129,18 @@ class HyperDataLoader:
         )
 
     def load_dataset_supervised(
-        self, dataset_name: str, patch_shape: Tuple[int, int], limit=float("inf")
-    ) -> List[Labeled_Data]:
+        self, dataset_name: str, patch_shape: Tuple[int, int], shuffle=True, limit=float("inf")
+    ) -> Labeled_Data:
         if self.datasets_params[dataset_name].single_file:
-            return [
-                self.load_singlefile_supervised(
+            yield self.load_singlefile_supervised(
                     self.datasets_params[dataset_name], patch_shape
                 )
-            ]
+            yield
+
         labeled_data_list = []
         datafiles = os.listdir(self.datasets_params[dataset_name].data_path)
+        if shuffle:
+            random.shuffle(datafiles)
         for count, lablefile in enumerate(
             os.listdir(self.datasets_params[dataset_name].lables_path)
         ):
@@ -160,8 +163,7 @@ class HyperDataLoader:
                 self.datasets_params[dataset_name].transpose,
                 patch_shape,
             )
-            labeled_data_list.append(labled_img)
-        return labeled_data_list
+            yield labled_img
 
     def load_one_supervised(
         self,
@@ -186,15 +188,13 @@ class HyperDataLoader:
         return Labeled_Data(data, gt)
 
     def generate_vectors(
-        self, dataset: str, patch_shape: Tuple[int, int]
-    ) -> List[Labeled_Data]:
-        vectors_list = []
-        labled_data = self.load_dataset_supervised(dataset, patch_shape)
-        for item in labled_data:
-            X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
+        self, dataset: str, patch_shape: Tuple[int, int],shuffle=True,limit=2
+    ) ->Labeled_Data:
+        labeled_data = self.load_dataset_supervised(dataset, patch_shape,shuffle=shuffle,limit=limit)
+        for item in labeled_data:
+            #X = item.image.reshape(item.image.shape[0] * item.image.shape[1], -1)
             Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
-            vectors_list.append(Labeled_Data(X, Y))
-        return vectors_list
+            yield Labeled_Data(item.image, Y)
 
     def load_dataset_unsupervised(self, Name: str) -> np.ndarray:
         """
