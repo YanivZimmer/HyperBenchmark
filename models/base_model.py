@@ -11,8 +11,9 @@ NUM_CLASSES = 10
 
 def train_base_model(load_existing):
     loader = HyperDataLoader()
-    labeled_data = loader.generate_vectors("PaviaU")
+    labeled_data = loader.generate_vectors("PaviaU",(1,1))
     X, y = labeled_data[0].image, labeled_data[0].lables
+    X, y = loader.filter_unlabeled(X, y)
     y = to_categorical(y, num_classes=10)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     if load_existing:
@@ -215,4 +216,5 @@ def compare():
 
 
 if __name__ == "__main__":
-    compare()
+    #compare()
+    train_base_model(False)

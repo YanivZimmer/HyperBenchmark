@@ -9,6 +9,7 @@ from experiments.assesment import Assesment
 import logging
 from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from models.cnn1_model import cnn_model
+from models.mini_model_fn import mini_model3
 from selection.max_dissim_selector import MaxDissimSelector
 
 
@@ -51,6 +52,22 @@ class MaxDissm(Assesment):
         print(f"all scores={scores}")
         print(f"selected bands={self.max_dissm_selector.selected_bands}")
         return scores
+
+    def assess_from_until(self,min_bands,max_bands):
+        scores = []
+        for i in range(len(self.max_dissm_selector.selected_bands)):
+            current_score = 0
+            if i > max_bands:
+                break
+            if i > min_bands:
+                bands = self.max_dissm_selector.selected_bands[:i + 1]
+                _, [_, current_score] = self.assess_bands(bands, epochs=50)  # ,args,kwargs)
+                print(f"Score for {len(bands)} bands is {current_score}")
+            scores.append(current_score)
+        print(f"all scores={scores}")
+        print(f"selected bands={self.max_dissm_selector.selected_bands}")
+        return scores
+
 if __name__=='__main__':
     if __name__ == "__main__":
         logging.info("Start max dismm")
@@ -61,16 +78,17 @@ if __name__=='__main__':
         X, y = loader.filter_unlabeled(X, y)
         y = to_categorical(y, num_classes=10)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
-        X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
-        X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
-        searcher = MaxDissm(
-            lambda x: cnn_model(x, NUM_OF_CLASSES), X_train, y_train, X_test, y_test
-        )
+        #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+        #X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+        #searcher = MaxDissm(
+        #    lambda x: cnn_model(x, NUM_OF_CLASSES), X_train, y_train, X_test, y_test
+        #)
+        searcher = MaxDissm(lambda x: mini_model3(x, NUM_OF_CLASSES), X_train, y_train, X_test, y_test)
         print(searcher.max_dissm_selector.selected_bands)
         searcher.select_once()
         print(searcher.max_dissm_selector.selected_bands)
         searcher.select_all(limit=250)
         print(searcher.max_dissm_selector.selected_bands)
-        scores=searcher.assess_all(min_bands=14,epochs=50)
+        scores=searcher.assess_all(min_bands=-1,epochs=75)
         print("scores",scores)
         
