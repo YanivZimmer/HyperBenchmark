@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-def train_model(model, train_loader,epochs,lr, device):
+def train_model(model, train_loader,epochs,lr, device,regularization=False):
     # Set model to training mode
     model.train()
 
@@ -28,6 +28,8 @@ def train_model(model, train_loader,epochs,lr, device):
 
             # Calculate loss
             loss = criterion(outputs, labels)
+            if regularization:
+                loss += model.regularization()
 
             # Backward pass
             loss.backward()

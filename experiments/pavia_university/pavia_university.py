@@ -1,16 +1,11 @@
 import numpy as np
-from torch import Tensor
 
-from experiments.pytorch_assessment import PytorchAssesment
 from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from sklearn.model_selection import train_test_split
 
-import models.pytorch_models.models
 from models.deep_sets.data_loader import create_data_loader
-from models.deep_sets.deep_sets import DeepSets
 from models.utils.train_test import train_model, simple_test_model
 
-simple_test_model
 import torch
 
 from models.mlp.mlp import MlpModel
@@ -32,7 +27,8 @@ def filter_hafe_1(X, y):
     X = X[final, :]
     return X, y
 
-def test_bands_mlp(bands):
+
+def data_loaders(bands):
     loader = HyperDataLoader()
     data = loader.generate_vectors("PaviaU", (1, 1), shuffle=True, limit=10)
     labeled_data = next(data)
@@ -41,12 +37,17 @@ def test_bands_mlp(bands):
     # X, y = filter_hafe_1(X, y)
     X = X.squeeze()
     X = X.astype(int)
-    X = X[:, bands]
+    if bands is not None:
+        X = X[:, bands]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     y_train = np.eye(NUM_CLASSES_PAVIA)[y_train]
-    mlp = MlpModel(len(bands), NUM_CLASSES_PAVIA)
     train_loader = create_data_loader(X_train, y_train, 256)
     test_loader = create_data_loader(X_test, y_test, 256)
+    return train_loader,test_loader
+    
+def test_bands_mlp(bands):
+    train_loader, test_loader = data_loaders(bands)
+    mlp = MlpModel(len(bands), NUM_CLASSES_PAVIA)
     train_model(mlp, train_loader, epochs=100, lr=0.000025, device=device)
     return simple_test_model(mlp, test_loader, device=device)
 
