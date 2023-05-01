@@ -10,7 +10,6 @@ class DiagonalLinear(nn.Module):
         self.threshold = threshold
 
     def forward(self, x):
-
         self.linear.weight.data *= self.mask
         over_threshold = torch.abs(self.linear.weight.data) > self.threshold
         self.linear.weight.data *= over_threshold
