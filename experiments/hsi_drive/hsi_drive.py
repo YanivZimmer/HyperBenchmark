@@ -68,7 +68,7 @@ def main_sync():
     train_model(deep_sets, train_loader, epochs=3, lr=0.00005, device=device)
     simple_test_model(deep_sets, test_loader, device=device)
 
-def main_iter(limit):
+def main_iter_deep_sets(limit):
     deep_sets = DeepSets(1, 25, 45, NUM_CLASSES_DRIVE)
     iter=train_iter()
     for index, item in zip(range(limit), iter):
