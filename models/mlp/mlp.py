@@ -30,14 +30,14 @@ class MlpModel(nn.Module):
         )
 
         self.fc2 = nn.Sequential(
-            nn.Linear(2 * input_shape, int(0.5 * input_shape)),
+            nn.Linear(2 * input_shape, max(int(0.5 * input_shape), 1)),
             nn.ReLU(),
             nn.Dropout(0.1),
-            nn.BatchNorm1d(int(0.5 * input_shape))
+            nn.BatchNorm1d(max(int(0.5 * input_shape), 1))
         )
 
         self.fc3 = nn.Sequential(
-            nn.Linear(int(0.5 * input_shape), num_classes),
+            nn.Linear(max(int(0.5 * input_shape), 1), num_classes),
             #nn.Softmax(dim=1)
         )
 
