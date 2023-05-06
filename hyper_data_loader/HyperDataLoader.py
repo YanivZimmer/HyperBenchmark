@@ -4,13 +4,21 @@ import random
 
 import numpy as np
 from typing import Dict, Tuple, List, Union
+
+import torch
 from scipy.io import loadmat
+from sklearn.model_selection import train_test_split
+
 from hyper_data_loader.png_to_mat import png_to_array
 from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
 from tensorflow.keras.utils import to_categorical
 
+from models.deep_sets.data_loader import create_data_loader
+
 Labeled_Data = namedtuple("Labeled_Data", ["image", "lables"])
+import spectral.io.envi as envi
+from pathlib import Path
 
 
 class DatasetParams:
@@ -85,12 +93,13 @@ class HyperDataLoader:
         if filename.endswith("png"):
             return png_to_array(filename)
         return loadmat(filename)[key]
-
-    def patch_to_pad(self, patch_size: int):
+    @staticmethod
+    def patch_to_pad(patch_size: int):
         return (math.floor((patch_size - 1) / 2), math.ceil((patch_size - 1) / 2))
 
+    @staticmethod
     def patches_factory(
-        self, data: np.ndarray, patch_shape: Tuple[int, int]
+        data: np.ndarray, patch_shape: Tuple[int, int]
     ) -> np.ndarray:
         """
         Generate patches in patch shape surrounding each pixel. for pixels too close to image borders using 0 padding.
@@ -100,8 +109,8 @@ class HyperDataLoader:
         :param patch_shape:
         :return:
         """
-        padding_first = self.patch_to_pad(patch_shape[0])
-        padding_second = self.patch_to_pad(patch_shape[1])
+        padding_first = HyperDataLoader.patch_to_pad(patch_shape[0])
+        padding_second = HyperDataLoader.patch_to_pad(patch_shape[1])
         data = np.pad(
             data,
             (padding_first, padding_second, (0, 0)),
@@ -196,14 +205,40 @@ class HyperDataLoader:
             Y = item.lables.reshape(item.lables.shape[0] * item.lables.shape[1], -1)
             yield Labeled_Data(item.image, Y)
 
-    def load_dataset_unsupervised(self, Name: str) -> np.ndarray:
+    @staticmethod
+    def hdr_to_data(folder_path):
+        datapath = Path(folder_path)
+        header_file = str(datapath / 'raw.hdr')
+        spectral_file = str(datapath / 'raw')
+        numpy_ndarr = envi.open(header_file, spectral_file)
+        return numpy_ndarr
+    @staticmethod
+    def generate_vectors_hdr(dataset_path: str, patch_shape: Tuple[int, int]):
+        data = HyperDataLoader.hdr_to_data(dataset_path)
+        data = HyperDataLoader.patches_factory(data, patch_shape)
+        yield data
+    @staticmethod
+    def data_loaders_unsupervised(data,bands:Union[Tuple,None]):
+        X = data[:,:,:]
+        X = X.reshape(X.shape[0]*X.shape[1],X.shape[2])
+        X = X.squeeze()
+        X = X.astype(np.uint8)
+        if bands is not None:
+            X = X[:, bands]
+
+        X_train, X_test = train_test_split(X, test_size=0.2)
+        train_loader = create_data_loader(X_train, batch_size=256)
+        test_loader = create_data_loader(X_test, batch_size=256)
+        return train_loader, test_loader
+
+    def load_dataset_unsupervised(self, datafile: str, datakey:str) -> np.ndarray:
         """
 
         :param Name:
         :return:
         """
-        raise NotImplementedError
-
+        data = self.file_to_mat(datafile, datakey)
+        return data
 
 def test():
     hdl = HyperDataLoader()
