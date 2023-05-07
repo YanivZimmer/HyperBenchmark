@@ -8,7 +8,7 @@ from models.autoencoder import Autoencoder
 from models.mlp.mlp import MlpModel
 from models.utils.train_test import train_model,simple_test_model
 from models.utils.device_utils import get_device
-from models.utils.sid_loss import sid_loss, SIDLoss
+from models.utils.sid_loss import SIDLoss
 
 
 def hdr_to_data(folder_path):
