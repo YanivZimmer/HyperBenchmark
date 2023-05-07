@@ -1,33 +1,35 @@
 import torch
 from torch import nn
 
-
-def train_model(model, train_loader,epochs,lr, device,regularization=False):
+def base_loss(criterion):
+    pass
+def train_model(model, train_loader,epochs,lr, device,regularization=False,criterion=nn.CrossEntropyLoss(),supervised=True):
     # Set model to training mode
     model.train()
 
-    # Define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
     #0.00005
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)#optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Move model to device
     model.to(device)
     for epoch in range(epochs):
         # Train the model for one epoch
-        for i, (inputs, labels) in enumerate(train_loader):
-            # Move inputs and labels to device
-            inputs = inputs.to(device)
-            labels = labels.to(device)
+        for i, data in enumerate(train_loader):
+            inputs = data[0].to(device)
+            # Forward pass
+            outputs = model(inputs)
+
+            if supervised:
+                # Move inputs and labels to device
+                labels = data[1].to(device)
+                loss = criterion(outputs, labels)
+            else:
+                loss = criterion(outputs, inputs)
 
             # Zero the gradients
             optimizer.zero_grad()
 
-            # Forward pass
-            outputs = model(inputs)
-
             # Calculate loss
-            loss = criterion(outputs, labels)
             if regularization:
                 loss += model.regularization()
 
