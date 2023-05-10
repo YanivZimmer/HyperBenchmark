@@ -6,17 +6,19 @@ import torch
 import torch.optim as optim
 from torch import Tensor
 from torch.nn import init
+
 # utils
 import math
 import os
 import datetime
 import numpy as np
+
 # from sklearn.externals
 import joblib
 from tqdm import tqdm
-from .utils import grouper, sliding_window, count_sliding_window, \
-    camel_to_snake
+from .utils import grouper, sliding_window, count_sliding_window, camel_to_snake
 import visdom
+
 
 def get_model(name, **kwargs):
     """
@@ -31,96 +33,96 @@ def get_model(name, **kwargs):
         criterion: PyTorch loss Function
         kwargs: hyperparameters with sane defaults
     """
-    device = kwargs.setdefault('device', torch.device('cpu'))
-    n_classes = kwargs['n_classes']
-    n_bands = kwargs['n_bands']
+    device = kwargs.setdefault("device", torch.device("cpu"))
+    n_classes = kwargs["n_classes"]
+    n_bands = kwargs["n_bands"]
     weights = torch.ones(n_classes)
     # weights[torch.LongTensor(kwargs['ignored_labels'])] = 0.
-    weights[torch.LongTensor(kwargs['ignored_labels'])] = 0.
+    weights[torch.LongTensor(kwargs["ignored_labels"])] = 0.0
     weights = weights.to(device)
-    weights = kwargs.setdefault('weights', weights)
+    weights = kwargs.setdefault("weights", weights)
 
-    if name == 'nn':
-        kwargs.setdefault('patch_size', 1)
+    if name == "nn":
+        kwargs.setdefault("patch_size", 1)
         center_pixel = True
-        model = Baseline(n_bands, n_classes,
-                         kwargs.setdefault('dropout', False))
-        lr = kwargs.setdefault('learning_rate', 0.0001)
+        model = Baseline(n_bands, n_classes, kwargs.setdefault("dropout", False))
+        lr = kwargs.setdefault("learning_rate", 0.0001)
         optimizer = optim.Adam(model.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-        kwargs.setdefault('epoch', 100)
-        kwargs.setdefault('batch_size', 100)
-    elif name == 'hamida':
-        patch_size = kwargs.setdefault('patch_size', 5)
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+        kwargs.setdefault("epoch", 100)
+        kwargs.setdefault("batch_size", 100)
+    elif name == "hamida":
+        patch_size = kwargs.setdefault("patch_size", 5)
         center_pixel = True
         model = HamidaEtAl(n_bands, n_classes, patch_size=patch_size)
-        lr = kwargs.setdefault('learning_rate', 0.01)
+        lr = kwargs.setdefault("learning_rate", 0.01)
         optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=0.0005)
-        kwargs.setdefault('batch_size', 100)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-    elif name == 'lee':
-        kwargs.setdefault('epoch', 200)
-        patch_size = kwargs.setdefault('patch_size', 5)
+        kwargs.setdefault("batch_size", 100)
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+    elif name == "lee":
+        kwargs.setdefault("epoch", 200)
+        patch_size = kwargs.setdefault("patch_size", 5)
         center_pixel = False
         model = LeeEtAl(n_bands, n_classes)
-        lr = kwargs.setdefault('learning_rate', 0.001)
+        lr = kwargs.setdefault("learning_rate", 0.001)
         optimizer = optim.Adam(model.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-    elif name == 'chen':
-        patch_size = kwargs.setdefault('patch_size', 27)
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+    elif name == "chen":
+        patch_size = kwargs.setdefault("patch_size", 27)
         center_pixel = True
         model = ChenEtAl(n_bands, n_classes, patch_size=patch_size)
-        lr = kwargs.setdefault('learning_rate', 0.003)
+        lr = kwargs.setdefault("learning_rate", 0.003)
         optimizer = optim.SGD(model.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-        kwargs.setdefault('epoch', 400)
-        kwargs.setdefault('batch_size', 100)
-    elif name == 'li':
-        patch_size = kwargs.setdefault('patch_size', 5)
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+        kwargs.setdefault("epoch", 400)
+        kwargs.setdefault("batch_size", 100)
+    elif name == "li":
+        patch_size = kwargs.setdefault("patch_size", 5)
         center_pixel = True
         model = LiEtAl(n_bands, n_classes, n_planes=16, patch_size=patch_size)
-        lr = kwargs.setdefault('learning_rate', 0.01)
-        optimizer = optim.SGD(model.parameters(),
-                              lr=lr, momentum=0.9, weight_decay=0.0005)
-        epoch = kwargs.setdefault('epoch', 200)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
+        lr = kwargs.setdefault("learning_rate", 0.01)
+        optimizer = optim.SGD(
+            model.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005
+        )
+        epoch = kwargs.setdefault("epoch", 200)
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
         # kwargs.setdefault('scheduler', optim.lr_scheduler.MultiStepLR(optimizer, milestones=[epoch // 2, (5 * epoch) // 6], gamma=0.1))
-    elif name == 'hu':
-        kwargs.setdefault('patch_size', 1)
+    elif name == "hu":
+        kwargs.setdefault("patch_size", 1)
         center_pixel = True
         model = HuEtAl(n_bands, n_classes)
         # From what I infer from the paper (Eq.7 and Algorithm 1), it is standard SGD with lr = 0.01
-        #lr = kwargs.setdefault('learning_rate', 0.01)
-        lr = kwargs.setdefault('learning_rate', 0.0001)
+        # lr = kwargs.setdefault('learning_rate', 0.01)
+        lr = kwargs.setdefault("learning_rate", 0.0001)
         optimizer = optim.SGD(model.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-        kwargs.setdefault('epoch', 100)
-        kwargs.setdefault('batch_size', 100)
-    elif name == 'he':
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+        kwargs.setdefault("epoch", 100)
+        kwargs.setdefault("batch_size", 100)
+    elif name == "he":
         # We train our model by AdaGrad [18] algorithm, in which
         # the base learning rate is 0.01. In addition, we set the batch
         # as 40, weight decay as 0.01 for all the layers
         # The input of our network is the HSI 3D patch in the size of 7×7×Band
-        kwargs.setdefault('patch_size', 7)
-        kwargs.setdefault('batch_size', 40)
-        lr = kwargs.setdefault('learning_rate', 0.01)
+        kwargs.setdefault("patch_size", 7)
+        kwargs.setdefault("batch_size", 40)
+        lr = kwargs.setdefault("learning_rate", 0.01)
         center_pixel = True
-        model = HeEtAl(n_bands, n_classes, patch_size=kwargs['patch_size'])
+        model = HeEtAl(n_bands, n_classes, patch_size=kwargs["patch_size"])
         # For Adagrad, we need to load the model on GPU before creating the optimizer
         model = model.to(device)
         optimizer = optim.Adagrad(model.parameters(), lr=lr, weight_decay=0.01)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-    elif name == 'luo':
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+    elif name == "luo":
         # All  the  experiments  are  settled  by  the  learning  rate  of  0.1,
         # the  decay  term  of  0.09  and  batch  size  of  100.
-        kwargs.setdefault('patch_size', 3)
-        kwargs.setdefault('batch_size', 100)
-        lr = kwargs.setdefault('learning_rate', 0.1)
+        kwargs.setdefault("patch_size", 3)
+        kwargs.setdefault("batch_size", 100)
+        lr = kwargs.setdefault("learning_rate", 0.1)
         center_pixel = True
-        model = LuoEtAl(n_bands, n_classes, patch_size=kwargs['patch_size'])
+        model = LuoEtAl(n_bands, n_classes, patch_size=kwargs["patch_size"])
         optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=0.09)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-    elif name == 'sharma':
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+    elif name == "sharma":
         # We train our S-CNN from scratch using stochastic gradient descent with
         # momentum set to 0.9, weight decay of 0.0005, and with a batch size
         # of 60.  We initialize an equal learning rate for all trainable layers
@@ -128,66 +130,80 @@ def get_model(name, **kwargs):
         # error stopped decreasing. Prior to the termination the learning rate was
         # reduced two times at 15th and 25th epoch. [...]
         # We trained the network for 30 epochs
-        kwargs.setdefault('batch_size', 60)
-        epoch = kwargs.setdefault('epoch', 30)
-        lr = kwargs.setdefault('lr', 0.05)
+        kwargs.setdefault("batch_size", 60)
+        epoch = kwargs.setdefault("epoch", 30)
+        lr = kwargs.setdefault("lr", 0.05)
         center_pixel = True
         # We assume patch_size = 64
-        kwargs.setdefault('patch_size', 64)
-        model = SharmaEtAl(n_bands, n_classes, patch_size=kwargs['patch_size'])
+        kwargs.setdefault("patch_size", 64)
+        model = SharmaEtAl(n_bands, n_classes, patch_size=kwargs["patch_size"])
         optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=0.0005)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
-        kwargs.setdefault('scheduler',
-                          optim.lr_scheduler.MultiStepLR(optimizer, milestones=[epoch // 2, (5 * epoch) // 6],
-                                                         gamma=0.1))
-    elif name == 'liu':
-        kwargs['supervision'] = 'semi'
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+        kwargs.setdefault(
+            "scheduler",
+            optim.lr_scheduler.MultiStepLR(
+                optimizer, milestones=[epoch // 2, (5 * epoch) // 6], gamma=0.1
+            ),
+        )
+    elif name == "liu":
+        kwargs["supervision"] = "semi"
         # "The learning rate is set to 0.001 empirically. The number of epochs is set to be 40."
-        kwargs.setdefault('epoch', 40)
-        lr = kwargs.setdefault('lr', 0.001)
+        kwargs.setdefault("epoch", 40)
+        lr = kwargs.setdefault("lr", 0.001)
         center_pixel = True
-        patch_size = kwargs.setdefault('patch_size', 9)
+        patch_size = kwargs.setdefault("patch_size", 9)
         model = LiuEtAl(n_bands, n_classes, patch_size)
         optimizer = optim.SGD(model.parameters(), lr=lr)
         # "The unsupervised cost is the squared error of the difference"
-        criterion = (nn.CrossEntropyLoss(weight=kwargs['weights']),
-                     lambda rec, data: F.mse_loss(rec, data[:, :, :, patch_size // 2, patch_size // 2].squeeze()))
-    elif name == 'boulch':
-        kwargs['supervision'] = 'semi'
-        kwargs.setdefault('patch_size', 1)
-        kwargs.setdefault('epoch', 100)
-        lr = kwargs.setdefault('lr', 0.001)
+        criterion = (
+            nn.CrossEntropyLoss(weight=kwargs["weights"]),
+            lambda rec, data: F.mse_loss(
+                rec, data[:, :, :, patch_size // 2, patch_size // 2].squeeze()
+            ),
+        )
+    elif name == "boulch":
+        kwargs["supervision"] = "semi"
+        kwargs.setdefault("patch_size", 1)
+        kwargs.setdefault("epoch", 100)
+        lr = kwargs.setdefault("lr", 0.001)
         center_pixel = True
         model = BoulchEtAl(n_bands, n_classes)
         optimizer = optim.SGD(model.parameters(), lr=lr)
-        criterion = (nn.CrossEntropyLoss(weight=kwargs['weights']), lambda rec, data: F.mse_loss(rec, data.squeeze()))
-    elif name == 'mou':
-        kwargs.setdefault('patch_size', 1)
+        criterion = (
+            nn.CrossEntropyLoss(weight=kwargs["weights"]),
+            lambda rec, data: F.mse_loss(rec, data.squeeze()),
+        )
+    elif name == "mou":
+        kwargs.setdefault("patch_size", 1)
         center_pixel = True
-        kwargs.setdefault('epoch', 100)
+        kwargs.setdefault("epoch", 100)
         # "The RNN was trained with the Adadelta algorithm [...] We made use of a
         # fairly  high  learning  rate  of  1.0  instead  of  the  relatively  low
         # default of  0.002 to  train the  network"
-        lr = kwargs.setdefault('lr', 1.0)
+        lr = kwargs.setdefault("lr", 1.0)
         model = MouEtAl(n_bands, n_classes)
         # For Adadelta, we need to load the model on GPU before creating the optimizer
         model = model.to(device)
         optimizer = optim.Adadelta(model.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss(weight=kwargs['weights'])
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
     else:
         raise KeyError("{} model is unknown.".format(name))
 
     model = model.to(device)
-    epoch = kwargs.setdefault('epoch', 100)
-    kwargs.setdefault('scheduler',
-                      optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=epoch // 4, verbose=True))
+    epoch = kwargs.setdefault("epoch", 100)
+    kwargs.setdefault(
+        "scheduler",
+        optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, factor=0.1, patience=epoch // 4, verbose=True
+        ),
+    )
     # kwargs.setdefault('scheduler', None)
-    kwargs.setdefault('batch_size', 100)
-    kwargs.setdefault('supervision', 'full')
-    kwargs.setdefault('flip_augmentation', False)
-    kwargs.setdefault('radiation_augmentation', False)
-    kwargs.setdefault('mixture_augmentation', False)
-    kwargs['center_pixel'] = center_pixel
+    kwargs.setdefault("batch_size", 100)
+    kwargs.setdefault("supervision", "full")
+    kwargs.setdefault("flip_augmentation", False)
+    kwargs.setdefault("radiation_augmentation", False)
+    kwargs.setdefault("mixture_augmentation", False)
+    kwargs["center_pixel"] = center_pixel
     return model, optimizer, criterion, kwargs
 
 
@@ -274,7 +290,7 @@ class HuEtAl(nn.Module):
 
     def forward(self, x):
         # [In our design architecture, we choose the hyperbolic tangent function tanh(u)]
-        #x = Tensor(x, device=self.device,dtype=self.conv.weight.dtype)
+        # x = Tensor(x, device=self.device,dtype=self.conv.weight.dtype)
         x = x.squeeze(dim=-1).squeeze(dim=-1)
         x = x.unsqueeze(1)
         x = self.conv(x)
@@ -309,29 +325,36 @@ class HamidaEtAl(nn.Module):
 
         if patch_size == 3:
             self.conv1 = nn.Conv3d(
-                1, 20, (3, 3, 3), stride=(1, 1, 1), dilation=dilation, padding=1)
+                1, 20, (3, 3, 3), stride=(1, 1, 1), dilation=dilation, padding=1
+            )
         else:
             self.conv1 = nn.Conv3d(
-                1, 20, (3, 3, 3), stride=(1, 1, 1), dilation=dilation, padding=0)
+                1, 20, (3, 3, 3), stride=(1, 1, 1), dilation=dilation, padding=0
+            )
         # Next pooling is applied using a layer identical to the previous one
         # with the difference of a 1D kernel size (1,1,3) and a larger stride
         # equal to 2 in order to reduce the spectral dimension
         self.pool1 = nn.Conv3d(
-            20, 20, (3, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0))
+            20, 20, (3, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0)
+        )
         # Then, a duplicate of the first and second layers is created with
         # 35 hidden neurons per layer.
         self.conv2 = nn.Conv3d(
-            20, 35, (3, 3, 3), dilation=dilation, stride=(1, 1, 1), padding=(1, 0, 0))
+            20, 35, (3, 3, 3), dilation=dilation, stride=(1, 1, 1), padding=(1, 0, 0)
+        )
         self.pool2 = nn.Conv3d(
-            35, 35, (3, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0))
+            35, 35, (3, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0)
+        )
         # Finally, the 1D spatial dimension is progressively reduced
         # thanks to the use of two Conv layers, 35 neurons each,
         # with respective kernel sizes of (1,1,3) and (1,1,2) and strides
         # respectively equal to (1,1,1) and (1,1,2)
         self.conv3 = nn.Conv3d(
-            35, 35, (3, 1, 1), dilation=dilation, stride=(1, 1, 1), padding=(1, 0, 0))
+            35, 35, (3, 1, 1), dilation=dilation, stride=(1, 1, 1), padding=(1, 0, 0)
+        )
         self.conv4 = nn.Conv3d(
-            35, 35, (2, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0))
+            35, 35, (2, 1, 1), dilation=dilation, stride=(2, 1, 1), padding=(1, 0, 0)
+        )
 
         # self.dropout = nn.Dropout(p=0.5)
 
@@ -344,8 +367,9 @@ class HamidaEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = self.pool1(self.conv1(x))
             x = self.pool2(self.conv2(x))
             x = self.conv3(x)
@@ -386,9 +410,11 @@ class LeeEtAl(nn.Module):
         # image with two convolutional filters with different sizes
         # (1x1xB and 3x3xB where B is the number of spectral bands)
         self.conv_3x3 = nn.Conv3d(
-            1, 128, (in_channels, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1))
+            1, 128, (in_channels, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1)
+        )
         self.conv_1x1 = nn.Conv3d(
-            1, 128, (in_channels, 1, 1), stride=(1, 1, 1), padding=0)
+            1, 128, (in_channels, 1, 1), stride=(1, 1, 1), padding=0
+        )
 
         # We use two modules from the residual learning approach
         # Residual block 1
@@ -487,8 +513,9 @@ class ChenEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = self.pool1(self.conv1(x))
             x = self.pool2(self.conv2(x))
             x = self.conv3(x)
@@ -539,8 +566,7 @@ class LiEtAl(nn.Module):
         self.conv1 = nn.Conv3d(1, n_planes, (7, 3, 3), padding=(1, 0, 0))
         # the number of kernels in the second convolution layer is set to be
         # twice as many as that in the first convolution layer
-        self.conv2 = nn.Conv3d(n_planes, 2 * n_planes,
-                               (3, 3, 3), padding=(1, 0, 0))
+        self.conv2 = nn.Conv3d(n_planes, 2 * n_planes, (3, 3, 3), padding=(1, 0, 0))
         # self.dropout = nn.Dropout(p=0.5)
         self.features_size = self._get_final_flattened_size()
 
@@ -550,8 +576,9 @@ class LiEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = self.conv1(x)
             x = self.conv2(x)
             _, t, c, w, h = x.size()
@@ -608,8 +635,9 @@ class HeEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = self.conv1(x)
             x2_1 = self.conv2_1(x)
             x2_2 = self.conv2_2(x)
@@ -685,8 +713,9 @@ class LuoEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = self.conv1(x)
             b = x.size(0)
             x = x.view(b, 1, -1, self.n_planes)
@@ -750,8 +779,9 @@ class SharmaEtAl(nn.Module):
 
     def _get_final_flattened_size(self):
         with torch.no_grad():
-            x = torch.zeros((1, 1, self.input_channels,
-                             self.patch_size, self.patch_size))
+            x = torch.zeros(
+                (1, 1, self.input_channels, self.patch_size, self.patch_size)
+            )
             x = F.relu(self.conv1_bn(self.conv1(x)))
             x = self.pool1(x)
             print(x.size())
@@ -826,8 +856,7 @@ class LiuEtAl(nn.Module):
         self.apply(self.weight_init)
 
     def _get_sizes(self):
-        x = torch.zeros((1, self.input_channels,
-                         self.patch_size, self.patch_size))
+        x = torch.zeros((1, self.input_channels, self.patch_size, self.patch_size))
         x = F.relu(self.conv1_bn(self.conv1(x)))
         _, c, w, h = x.size()
         size0 = c * w * h
@@ -855,8 +884,12 @@ class LiuEtAl(nn.Module):
 
         # x = F.relu(self.fc1_dec_bn(self.fc1_dec(x) + x_enc))
         x = F.relu(self.fc1_dec(x))
-        x = F.relu(self.fc2_dec_bn(self.fc2_dec(x) + x_pool1.view(-1, self.features_sizes[1])))
-        x = F.relu(self.fc3_dec_bn(self.fc3_dec(x) + x_conv1.view(-1, self.features_sizes[0])))
+        x = F.relu(
+            self.fc2_dec_bn(self.fc2_dec(x) + x_pool1.view(-1, self.features_sizes[1]))
+        )
+        x = F.relu(
+            self.fc3_dec_bn(self.fc3_dec(x) + x_conv1.view(-1, self.features_sizes[0]))
+        )
         x = self.fc4_dec(x)
         return x_classif, x
 
@@ -884,7 +917,7 @@ class BoulchEtAl(nn.Module):
         with torch.no_grad():
             x = torch.zeros((10, 1, self.input_channels))
             print(x.size())
-            while (n > 1):
+            while n > 1:
                 print("---------- {} ---------".format(n))
                 if n == input_channels:
                     p1, p2 = 1, 2 * planes
@@ -969,9 +1002,20 @@ class MouEtAl(nn.Module):
         return x
 
 
-def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
-          display_iter=100, device=torch.device('cpu'), display=None,
-          val_loader=None, supervision='full',save_weights=False):
+def train(
+    net,
+    optimizer,
+    criterion,
+    data_loader,
+    epoch,
+    scheduler=None,
+    display_iter=100,
+    device=torch.device("cpu"),
+    display=None,
+    val_loader=None,
+    supervision="full",
+    save_weights=False,
+):
     """
     Training loop to optimize a network for several epochs and a specified loss
 
@@ -1005,61 +1049,75 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
     for e in tqdm(range(1, epoch + 1), desc="Training the network"):
         # Set the network to training mode
         net.train()
-        avg_loss = 0.
+        avg_loss = 0.0
 
         # Run the training loop for one epoch
-        for batch_idx, (data, target) in tqdm(enumerate(data_loader), total=len(data_loader)):
+        for batch_idx, (data, target) in tqdm(
+            enumerate(data_loader), total=len(data_loader)
+        ):
             # Load the data into the GPU if required
             data, target = data.to(device), target.to(device)
 
             optimizer.zero_grad()
-            if supervision == 'full':
+            if supervision == "full":
                 output = net(data)
                 # target = target - 1
                 target = target.squeeze()
                 loss = criterion(output, target)
-            elif supervision == 'semi':
+            elif supervision == "semi":
                 outs = net(data)
                 output, rec = outs
                 # target = target - 1
-                loss = criterion[0](output, target) + net.aux_loss_weight * criterion[1](rec, data)
+                loss = criterion[0](output, target) + net.aux_loss_weight * criterion[
+                    1
+                ](rec, data)
             else:
-                raise ValueError("supervision mode \"{}\" is unknown.".format(supervision))
+                raise ValueError(
+                    'supervision mode "{}" is unknown.'.format(supervision)
+                )
             loss.backward()
             optimizer.step()
 
             avg_loss += loss.item()
             losses[iter_] = loss.item()
-            mean_losses[iter_] = np.mean(losses[max(0, iter_ - 100):iter_ + 1])
+            mean_losses[iter_] = np.mean(losses[max(0, iter_ - 100) : iter_ + 1])
 
             if display_iter and iter_ % display_iter == 0:
-                string = 'Train (epoch {}/{}) [{}/{} ({:.0f}%)]\tLoss: {:.6f}'
+                string = "Train (epoch {}/{}) [{}/{} ({:.0f}%)]\tLoss: {:.6f}"
                 string = string.format(
-                    e, epoch, batch_idx *
-                              len(data), len(data) * len(data_loader),
-                              100. * batch_idx / len(data_loader), mean_losses[iter_])
-                update = None if loss_win is None else 'append'
+                    e,
+                    epoch,
+                    batch_idx * len(data),
+                    len(data) * len(data_loader),
+                    100.0 * batch_idx / len(data_loader),
+                    mean_losses[iter_],
+                )
+                update = None if loss_win is None else "append"
                 if display is None:
-                    display= visdom.Visdom(env='Default')
+                    display = visdom.Visdom(env="Default")
                 loss_win = display.line(
                     X=np.arange(iter_ - display_iter, iter_),
-                    Y=mean_losses[iter_ - display_iter:iter_],
+                    Y=mean_losses[iter_ - display_iter : iter_],
                     win=loss_win,
                     update=update,
-                    opts={'title': "Training loss",
-                          'xlabel': "Iterations",
-                          'ylabel': "Loss"
-                          }
+                    opts={
+                        "title": "Training loss",
+                        "xlabel": "Iterations",
+                        "ylabel": "Loss",
+                    },
                 )
                 tqdm.write(string)
                 if len(val_accuracies) > 0:
-                    val_win = display.line(Y=np.array(val_accuracies),
-                                           X=np.arange(len(val_accuracies)),
-                                           win=val_win,
-                                           opts={'title': "Validation accuracy",
-                                                 'xlabel': "Epochs",
-                                                 'ylabel': "Accuracy"
-                                                 })
+                    val_win = display.line(
+                        Y=np.array(val_accuracies),
+                        X=np.arange(len(val_accuracies)),
+                        win=val_win,
+                        opts={
+                            "title": "Validation accuracy",
+                            "xlabel": "Epochs",
+                            "ylabel": "Accuracy",
+                        },
+                    )
             iter_ += 1
             del (data, target, loss, output)
 
@@ -1079,22 +1137,27 @@ def train(net, optimizer, criterion, data_loader, epoch, scheduler=None,
 
         # Save the weights
         if save_weights and e % save_epoch == 0:
-            save_model(net, camel_to_snake(str(net.__class__.__name__)), data_loader.dataset.name, epoch=e,
-                       metric=abs(metric))
+            save_model(
+                net,
+                camel_to_snake(str(net.__class__.__name__)),
+                data_loader.dataset.name,
+                epoch=e,
+                metric=abs(metric),
+            )
 
 
 def save_model(model, model_name, dataset_name, **kwargs):
-    model_dir = './checkpoints/' + model_name + "/" + dataset_name + "/"
+    model_dir = "./checkpoints/" + model_name + "/" + dataset_name + "/"
     if not os.path.isdir(model_dir):
         os.makedirs(model_dir, exist_ok=True)
     if isinstance(model, torch.nn.Module):
-        filename = str('run') + "_epoch{epoch}_{metric:.2f}".format(**kwargs)
+        filename = str("run") + "_epoch{epoch}_{metric:.2f}".format(**kwargs)
         tqdm.write("Saving neural network weights in {}".format(filename))
-        torch.save(model.state_dict(), model_dir + filename + '.pth')
+        torch.save(model.state_dict(), model_dir + filename + ".pth")
     else:
-        filename = str('run')
+        filename = str("run")
         tqdm.write("Saving model params in {}".format(filename))
-        joblib.dump(model, model_dir + filename + '.pkl')
+        joblib.dump(model, model_dir + filename + ".pkl")
 
 
 def test(net, img, hyperparams):
@@ -1102,19 +1165,23 @@ def test(net, img, hyperparams):
     Test a model on a specific image
     """
     net.eval()
-    patch_size = hyperparams['patch_size']
-    center_pixel = hyperparams['center_pixel']
-    batch_size, device = hyperparams['batch_size'], hyperparams['device']
-    n_classes = hyperparams['n_classes']
+    patch_size = hyperparams["patch_size"]
+    center_pixel = hyperparams["center_pixel"]
+    batch_size, device = hyperparams["batch_size"], hyperparams["device"]
+    n_classes = hyperparams["n_classes"]
 
-    kwargs = {'step': hyperparams['test_stride'], 'window_size': (patch_size, patch_size)}
+    kwargs = {
+        "step": hyperparams["test_stride"],
+        "window_size": (patch_size, patch_size),
+    }
     probs = np.zeros(img.shape[:2] + (n_classes,))
 
     iterations = count_sliding_window(img, **kwargs) // batch_size
-    for batch in tqdm(grouper(batch_size, sliding_window(img, **kwargs)),
-                      total=(iterations),
-                      desc="Inference on the image"
-                      ):
+    for batch in tqdm(
+        grouper(batch_size, sliding_window(img, **kwargs)),
+        total=(iterations),
+        desc="Inference on the image",
+    ):
         with torch.no_grad():
             if patch_size == 1:
                 data = [b[0][0, 0] for b in batch]
@@ -1132,7 +1199,7 @@ def test(net, img, hyperparams):
             output = net(data)
             if isinstance(output, tuple):
                 output = output[0]
-            output = output.to('cpu')
+            output = output.to("cpu")
 
             if patch_size == 1 or center_pixel:
                 output = output.numpy()
@@ -1142,22 +1209,22 @@ def test(net, img, hyperparams):
                 if center_pixel:
                     probs[x + w // 2, y + h // 2] += out
                 else:
-                    probs[x:x + w, y:y + h] += out
+                    probs[x : x + w, y : y + h] += out
     return probs
 
 
-def val(net, data_loader, device='cpu', supervision='full'):
+def val(net, data_loader, device="cpu", supervision="full"):
     # TODO : fix me using metrics()
     net.eval()
-    accuracy, total = 0., 0.
+    accuracy, total = 0.0, 0.0
     ignored_labels = data_loader.dataset.ignored_labels
     for batch_idx, (data, target) in enumerate(data_loader):
         with torch.no_grad():
             # Load the data into the GPU if required
             data, target = data.to(device), target.to(device)
-            if supervision == 'full':
+            if supervision == "full":
                 output = net(data)
-            elif supervision == 'semi':
+            elif supervision == "semi":
                 outs = net(data)
                 output, rec = outs
             _, output = torch.max(output, dim=1)

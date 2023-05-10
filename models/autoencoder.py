@@ -11,14 +11,16 @@ class Autoencoder(nn.Module):
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.ReLU())
+            nn.ReLU(),
+        )
         self.decoder = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, input_size),
-            nn.ReLU())
+            nn.ReLU(),
+        )
 
     def forward(self, x):
         encoded = self.encoder(x)

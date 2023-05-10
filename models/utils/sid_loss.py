@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 
+
 class SIDLoss(torch.nn.Module):
     def __init__(self):
         super(SIDLoss, self).__init__()
@@ -11,6 +12,8 @@ class SIDLoss(torch.nn.Module):
         y = y + eps
         x = F.normalize(x, p=1, dim=0)
         y = F.normalize(y, p=1, dim=0)
-        sid = torch.sum(x * torch.log(x/y), dim=0) + torch.sum(y * torch.log(y/x), dim=0)
+        sid = torch.sum(x * torch.log(x / y), dim=0) + torch.sum(
+            y * torch.log(y / x), dim=0
+        )
         sid = torch.mean(sid)
         return sid

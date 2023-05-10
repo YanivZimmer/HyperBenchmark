@@ -97,8 +97,8 @@ def hsi_drive_cnn1():
     X_train, X_test, y_train, y_test = combine_hsi_drive()
     model = cnn_model(INPUT_SHAPE_DRIVE, NUM_CLASSES_DRIVE)
     print("bef", X_train.shape, X_test.shape)
-    #X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
-    #X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+    # X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+    # X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
     print("aft", X_train.shape, X_test.shape)
     history = model.fit(
         X_train[:123456], y_train[:123456], epochs=50, batch_size=2048, verbose=1
@@ -107,6 +107,7 @@ def hsi_drive_cnn1():
     print("Accuracy over test set is {0}".format(results))
     return model, X_test, y_test
 
-if __name__=='__main__':
-    #pavia_cnn1()
+
+if __name__ == "__main__":
+    # pavia_cnn1()
     hsi_drive_cnn1()

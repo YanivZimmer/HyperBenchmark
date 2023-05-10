@@ -1,13 +1,25 @@
 import torch
 from torch import nn
 
+
 def base_loss(criterion):
     pass
-def train_model(model, train_loader,epochs,lr, device,regularization=False,criterion=nn.CrossEntropyLoss(),supervised=True):
+
+
+def train_model(
+    model,
+    train_loader,
+    epochs,
+    lr,
+    device,
+    regularization=False,
+    criterion=nn.CrossEntropyLoss(),
+    supervised=True,
+):
     # Set model to training mode
     model.train()
 
-    #0.00005
+    # 0.00005
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Move model to device
@@ -40,11 +52,16 @@ def train_model(model, train_loader,epochs,lr, device,regularization=False,crite
             optimizer.step()
 
             # Print loss every 1000 iterations
-            if (i+1) % 50 == 0:
-                print('Epoch {} Iteration [{}/{}], Loss: {:.4f}'.format(epoch+1,i+1, len(train_loader), loss.item()))
+            if (i + 1) % 50 == 0:
+                print(
+                    "Epoch {} Iteration [{}/{}], Loss: {:.4f}".format(
+                        epoch + 1, i + 1, len(train_loader), loss.item()
+                    )
+                )
 
     # Print message when training is complete
-    print('Finished training')
+    print("Finished training")
+
 
 def simple_test_model(model, test_loader, device):
     model.eval()
@@ -63,5 +80,5 @@ def simple_test_model(model, test_loader, device):
             correct += (predicted == labels).sum().item()
 
     accuracy = 100 * correct / total
-    print('Accuracy on test set: {:.2f}%'.format(accuracy))
+    print("Accuracy on test set: {:.2f}%".format(accuracy))
     return accuracy
