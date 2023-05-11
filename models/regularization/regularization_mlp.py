@@ -24,6 +24,7 @@ class RegMlpModel(nn.Module):
 
     def __init__(self, input_shape, num_classes, threshold):
         super(RegMlpModel, self).__init__()
+        self.threshold=threshold
         self.one_to_one = DiagonalLinear(input_shape, input_shape, threshold=threshold)
         self.regularization_calc = RegularizationDiag(
             torch.diagonal(self.one_to_one.linear.weight)
@@ -52,9 +53,17 @@ class RegMlpModel(nn.Module):
 
     def regularization(self):
         non_zero = torch.nonzero(self.one_to_one.linear.weight)
-        regu = self.regularization_calc.regularization_normal_dist_based(20, 0, 1)
-        print("non_zero", len(non_zero), "regu", regu)
-        return regu
+        #regu = self.regularization_calc.regularization_normal_dist_based(50, 0, 1)
+        print("non_zero", len(non_zero), "regu", (2**-4)*self.regularization_ex(50).item(),self.regularization_l1().item())
+        return self.regularization_l1()+(2**-4)*self.regularization_ex(50)#0.5*regu+0.00001*self.regularization_l1()
+
+    def regularization_ex(self,target):
+        non_zero = torch.nonzero(self.one_to_one.linear.weight)
+        x=torch.diagonal(self.one_to_one.linear.weight)
+        res=torch.pow(x,2)
+        res=torch.pow(1-torch.exp(-1*res),2)
+        res=torch.pow(res, 0.0001)
+        return (torch.nansum(res)-target)**2
 
     def regularization_limit_bands(self, bands_goal):
         # scale numbers to be 0 it close to one, or 1 else
@@ -73,7 +82,7 @@ class RegMlpModel(nn.Module):
         return torch.sqrt(torch.pow(self.regularization_l1() - target * self.avg, 2))
 
     def regularization_binary_exist(self, target):
-        res = torch.diagonal(self.one_to_one.linear.weight) > 1
+        res = torch.diagonal(self.one_to_one.linear.weight) > 0.1
         res2 = torch.where(res == True)
         return (len(res2) - target) ** 2
 

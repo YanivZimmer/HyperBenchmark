@@ -2,6 +2,7 @@ from pathlib import Path
 
 import spectral.io.envi as envi
 import torch
+from torch import nn
 
 from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from models.autoencoder import Autoencoder
@@ -33,6 +34,6 @@ if __name__ == "__main__":
         lr=0.00001,
         device=get_device(),
         regularization=False,
-        criterion=SIDLoss(),
+        criterion=nn.MSELoss(),
         supervised=False
     )

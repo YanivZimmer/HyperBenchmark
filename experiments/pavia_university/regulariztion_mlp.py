@@ -5,7 +5,7 @@ from pavia_university import data_loaders, device, NUM_CLASSES_PAVIA, INPUT_SHAP
 
 def main(bands):
     train_loader, test_loader = data_loaders(bands)
-    mlp = RegMlpModel(INPUT_SHAPE_PAVIA, NUM_CLASSES_PAVIA, 1e-3)
+    mlp = RegMlpModel(INPUT_SHAPE_PAVIA, NUM_CLASSES_PAVIA, 1e-6)
     train_model(
         mlp, train_loader, epochs=100, lr=0.00025, device=device, regularization=True
     )

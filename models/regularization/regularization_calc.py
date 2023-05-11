@@ -19,5 +19,6 @@ class RegularizationDiag:
 
     def regularization_normal_dist_based(self, target: int, mean=0, divg=1):
         scale = self._scale_weight_by_normal_dist_prob(mean, divg)
-        distance_from_mean = torch.norm(2 * (scale - 0.5), 1)
-        return 0.01 * (math.pow(distance_from_mean - target, 2))
+        distance_from_mean = torch.norm(2 * (scale - 0.5),1)
+        #return distance_from_mean
+        return 1e-14 * (math.pow(distance_from_mean - target, 8))
