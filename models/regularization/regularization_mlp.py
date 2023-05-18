@@ -54,8 +54,16 @@ class RegMlpModel(nn.Module):
     def regularization(self):
         non_zero = torch.nonzero(self.one_to_one.linear.weight)
         #regu = self.regularization_calc.regularization_normal_dist_based(50, 0, 1)
-        print("non_zero", len(non_zero), "regu", (2**-4)*self.regularization_ex(50).item(),self.regularization_l1().item())
-        return self.regularization_l1()+(2**-4)*self.regularization_ex(50)#0.5*regu+0.00001*self.regularization_l1()
+        #print("non_zero", len(non_zero), "regu", (2**-4)*self.regularization_ex(50).item(),self.regularization_l1().item())
+        #return self.regularization_l1()+(2**-4)*self.regularization_ex(50)#0.5*regu+0.00001*self.regularization_l1()
+        print("non_zero", len(non_zero), "regu", self.regularization_sigma_abs())
+        return self.regularization_sigma_abs()
+
+    def regularization_sigma_abs(self):
+        x = torch.diagonal(self.one_to_one.linear.weight)
+        res = torch.mul(torch.abs(x),torch.abs(1-x))
+        res = torch.sum(res)
+        return res
 
     def regularization_ex(self,target):
         non_zero = torch.nonzero(self.one_to_one.linear.weight)
