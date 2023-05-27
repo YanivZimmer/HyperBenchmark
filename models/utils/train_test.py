@@ -37,7 +37,6 @@ def train_model(
                 loss = criterion(outputs, labels)
             else:
                 loss = criterion(outputs, inputs)
-
             # Zero the gradients
             optimizer.zero_grad()
 

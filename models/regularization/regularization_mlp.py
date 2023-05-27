@@ -6,9 +6,12 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class DiagonalLinear(nn.Module):
-    def __init__(self, in_features, out_features, threshold=1e-4):
+    def __init__(self, in_features, out_features, threshold=1e-3):
         super(DiagonalLinear, self).__init__()
         self.linear = nn.Linear(in_features, out_features, bias=False, device=device)
+        with torch.no_grad():
+            nn.init.uniform_(self.linear.weight.data,a=0,b=1)
+            #self.linear.weight.data.fill_(0.5)
         self.mask = torch.eye(in_features, dtype=bool, device=device)
         self.threshold = threshold
 
@@ -52,17 +55,29 @@ class RegMlpModel(nn.Module):
         self.lamda = 1
 
     def regularization(self):
-        non_zero = torch.nonzero(self.one_to_one.linear.weight)
-        #regu = self.regularization_calc.regularization_normal_dist_based(50, 0, 1)
-        #print("non_zero", len(non_zero), "regu", (2**-4)*self.regularization_ex(50).item(),self.regularization_l1().item())
-        #return self.regularization_l1()+(2**-4)*self.regularization_ex(50)#0.5*regu+0.00001*self.regularization_l1()
-        print("non_zero", len(non_zero), "regu", self.regularization_sigma_abs())
-        return self.regularization_sigma_abs()
+        non_zero = torch.nonzero(torch.diagonal(self.one_to_one.linear.weight))
+        ones = torch.diagonal(self.one_to_one.linear.weight)>0.9
+        zeros = torch.diagonal(self.one_to_one.linear.weight)<0.09
+        print("ones",sum(ones),"zeros",sum(zeros))
+        #regu = self.regularization_l1()
+        #regu = self.regularization_l1_until_target(50)
+        regu = self.regularization_sigma_abs()
+        regu_target = self.regularization_target(50)
+        print("non zeros", len(non_zero), "regu", regu, "regu_target", regu_target)
+        return regu
+
+
+    def regularization_l1(self):
+        return torch.norm(torch.diagonal(self.one_to_one.linear.weight), 1)
 
     def regularization_sigma_abs(self):
         x = torch.diagonal(self.one_to_one.linear.weight)
-        res = torch.mul(torch.abs(x),torch.abs(1-x))
-        res = torch.sum(res)
+        res = torch.norm(x*(1-x), 1)
+        return res
+
+    def regularization_target(self,target):
+        x = torch.diagonal(self.one_to_one.linear.weight)
+        res = (torch.norm(x, 1)-target) ** 2
         return res
 
     def regularization_ex(self,target):
@@ -83,8 +98,12 @@ class RegMlpModel(nn.Module):
         res2 = torch.sum(torch.pow(res, 1 / RegMlpModel.N))
         return torch.sqrt(torch.pow(res2 - bands_goal, 2))
 
-    def regularization_l1(self):
-        return torch.norm(torch.diagonal(self.one_to_one.linear.weight), 1)
+    def regularization_l1_until_target(self, target):
+        non_zero = torch.nonzero(torch.diagonal(self.one_to_one.linear.weight))
+        if len(non_zero) > target:
+            return self.regularization_l1()
+        return 0
+
 
     def regularization_l1_special(self, target):
         return torch.sqrt(torch.pow(self.regularization_l1() - target * self.avg, 2))

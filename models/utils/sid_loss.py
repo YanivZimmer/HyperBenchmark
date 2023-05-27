@@ -17,3 +17,10 @@ class SIDLoss(torch.nn.Module):
         )
         sid = torch.mean(sid)
         return sid
+
+
+class ZeroLoss(torch.nn.Module):
+    def __init__(self):
+        super(ZeroLoss, self).__init__()
+    def forward(self, x, y):
+        return 0
