@@ -3,9 +3,8 @@ import os
 import random
 
 import numpy as np
-from typing import Dict, Tuple, List, Union
+from typing import Dict, Tuple, Union
 
-import torch
 from scipy.io import loadmat
 from sklearn.model_selection import train_test_split
 
@@ -14,7 +13,7 @@ from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
 from tensorflow.keras.utils import to_categorical
 
-from models.deep_sets.data_loader import create_data_loader
+from models.utils.data_loader import create_data_loader
 
 Labeled_Data = namedtuple("Labeled_Data", ["image", "lables"])
 import spectral.io.envi as envi

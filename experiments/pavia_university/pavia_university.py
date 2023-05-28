@@ -3,7 +3,7 @@ import numpy as np
 from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from sklearn.model_selection import train_test_split
 
-from models.deep_sets.data_loader import create_data_loader
+from models.utils.data_loader import create_data_loader
 from models.utils.train_test import train_model, simple_test_model
 
 import torch

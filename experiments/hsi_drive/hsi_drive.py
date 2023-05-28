@@ -1,32 +1,16 @@
-import itertools
-
 import numpy as np
-from torch import Tensor
 
-from experiments.pytorch_assessment import PytorchAssesment
-from hyper_data_loader.HyperDataLoader import HyperDataLoader, Labeled_Data
+from experiments.hsi_drive.utils import train_iter, NUM_CLASSES_DRIVE
+from hyper_data_loader.HyperDataLoader import HyperDataLoader
 from sklearn.model_selection import train_test_split
 
 import models.pytorch_models.models
-from models.deep_sets.data_loader import create_data_loader
+from models.utils.data_loader import create_data_loader
 from models.deep_sets.deep_sets import train_model, DeepSets, simple_test_model
 import torch
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-INPUT_SHAPE_PAVIA = 103
-NUM_CLASSES_PAVIA = 10
 
-INPUT_SHAPE_DRIVE = 25
-NUM_CLASSES_DRIVE = 10
-
-def filter_unlablled(X, y):
-    # idx = np.argsort(y)
-    idx = np.where(y != 0)
-    y = y[idx[0]]
-    X = X[idx[0], :]
-    # Make lables 0-9
-    y -= 1
-    return X, y
 
 
 def combine_hsi_drive(test_size=0.33):
@@ -39,22 +23,14 @@ def combine_hsi_drive(test_size=0.33):
         X = np.concatenate((X, item.image.reshape(item.image.shape[0],item.image.shape[3],
                                                   item.image.shape[1],item.image.shape[2])))
         y = np.concatenate((y, item.lables))
-    X, y = filter_unlablled(X, y)
+    X, y = loader.filter_unlabeled(X, y)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, shuffle=True
     )
     y_train = np.eye(NUM_CLASSES_DRIVE)[y_train]
     return X_train, X_test, y_train, y_test
 
-def train_iter():
-    LIMIT=1000
-    loader = HyperDataLoader()
-    for labeled_data_iter in loader.generate_vectors("HSI-drive", patch_shape=(3, 3),shuffle=True,limit=LIMIT):
-        X, y = labeled_data_iter.image, labeled_data_iter.lables
-        X = X.reshape(X.shape[0], X.shape[3], X.shape[1], X.shape[2])
-        X, y = filter_unlablled(X, y)
-        #y_train = np.eye(NUM_CLASSES_DRIVE)[y_train]
-        yield Labeled_Data(X,y)
+
 
 def get_model(n_bands,**kwargs):
     return models.pytorch_models.models.get_model("lee",n_bands=n_bands,n_classes=NUM_CLASSES_PAVIA,patch_size=3,ignored_labels=(),
@@ -85,4 +61,4 @@ def main_iter_deep_sets(limit):
     print(f"Average acc on {len(acc_list)} images: {sum(acc_list)/len(acc_list)}")
 
 if __name__=='__main__':
-    main_iter(210)
+    main_iter_deep_sets(210)

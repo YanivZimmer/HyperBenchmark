@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from experiments.hsi_drive.hsi_drive import train_iter, NUM_CLASSES_DRIVE, device
-from models.deep_sets.data_loader import create_data_loader
+from models.utils.data_loader import create_data_loader
 from models.deep_sets.deep_sets import train_model, simple_test_model
 
 

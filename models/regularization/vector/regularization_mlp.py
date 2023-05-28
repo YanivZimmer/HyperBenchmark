@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from models.regularization.regularization_calc import RegularizationDiag
+from models.regularization.vector.regularization_calc import RegularizationDiag
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
