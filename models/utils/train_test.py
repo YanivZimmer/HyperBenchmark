@@ -1,11 +1,6 @@
 import torch
 from torch import nn
 
-
-def base_loss(criterion):
-    pass
-
-
 def train_model(
     model,
     train_loader,
@@ -15,6 +10,7 @@ def train_model(
     regularization=False,
     criterion=nn.CrossEntropyLoss(),
     supervised=True,
+    squeeze=False
 ):
     # Set model to training mode
     model.train()
@@ -28,6 +24,8 @@ def train_model(
         # Train the model for one epoch
         for i, data in enumerate(train_loader):
             inputs = data[0].to(device)
+            if squeeze:
+                inputs = inputs.squeeze()
             # Forward pass
             outputs = model(inputs)
 

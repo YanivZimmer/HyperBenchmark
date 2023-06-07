@@ -9,8 +9,6 @@ from models.utils.train_test import train_model, simple_test_model
 
 PATCH_SIZE = 3
 N_BANDS = 25
-def create_model():
-    pass
 
 def experiment(model):
     limit = 200
