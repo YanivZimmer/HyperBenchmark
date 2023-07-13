@@ -16,8 +16,8 @@ def kl(
     """
     np.seterr(divide='ignore', invalid='ignore')
 
-    p = np.array(p, dtype=np.float)
-    q = np.array(q, dtype=np.float)
+    p = np.array(p, dtype=np.float64)
+    q = np.array(q, dtype=np.float64)
 
     if np.all(p == q):
         return 0
