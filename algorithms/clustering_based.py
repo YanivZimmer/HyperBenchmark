@@ -128,8 +128,8 @@ class WALUMI(WALU):
                 H_1_2 = np.sum(entr(c_xy))
                 I = H1 + H2 - H_1_2  # Mutual Information X_i, X_j
                 # I = mutual_info_score(None, None, contingency=c_xy)  # Mutual Information X_i, X_j
-
-                NI = (2 * I) / (H1 + H2)  # Normalized Mutual Information
+                DIV = (H1 + H2) if (H1 + H2) != 0 else 1
+                NI = (2 * I) / DIV  # Normalized Mutual Information
                 DNI = (1 - np.sqrt(NI)) ** 2  # NI distance
 
                 X_hat[i, j] = DNI

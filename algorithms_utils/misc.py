@@ -6,9 +6,10 @@ import numpy as np
 
 def get_band_histogram(
         band: np.ndarray,
-        density: bool = False
+        density: bool = False,
+        max_value = 256
 ) -> np.ndarray:
-    return np.histogram(band, bins=256, range=(0, 256), density=density)[0]
+    return np.histogram(band, bins=256, range=(0, max_value), density=density)[0]
 
 
 class Cache:

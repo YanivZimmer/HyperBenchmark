@@ -8,7 +8,7 @@ from scipy.io import loadmat
 from hyper_data_loader.png_to_mat import png_to_array
 from collections import namedtuple
 from sklearn.feature_extraction.image import extract_patches_2d
-from tensorflow.keras.utils import to_categorical
+#from tensorflow.keras.utils import to_categorical
 
 Labeled_Data = namedtuple("Labeled_Data", ["image", "lables"])
 
@@ -39,6 +39,30 @@ class HyperDataLoader:
                 "../../datasets/PaviaU/labels/PaviaU_gt.mat",
                 "paviaU",
                 "paviaU_gt",
+                True,
+                False,
+            ),
+            "IndianPines": DatasetParams(
+                "../../datasets/IndianPines/image/Indian_pines_corrected.mat",
+                "../../datasets/IndianPines/labels/Indian_pines_gt.mat",
+                "indian_pines_corrected",
+                "indian_pines_gt",
+                True,
+                False,
+            ),
+            "Salinas": DatasetParams(
+                "../../datasets/Salinas/Salinas_corrected.mat",
+                "../../datasets/Salinas/Salinas_gt.mat",
+                "salinas_corrected",
+                "salinas_gt",
+                True,
+                False,
+            ),
+            "KSC": DatasetParams(
+                "../../datasets/KSC/KSC.mat",
+                "../../datasets/KSC/KSC_gt.mat",
+                "KSC",
+                "KSC_gt",
                 True,
                 False,
             ),
